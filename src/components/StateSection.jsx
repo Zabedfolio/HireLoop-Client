@@ -19,7 +19,7 @@ const stats = [
     },
     {
         id: 2,
-        icon: <ChartBar width={22} height={22} />,
+        icon: <ChartBar width={22} height={22} className='-rotate-90'  />,
         value: '12K',
         label: 'Companies',
     },
