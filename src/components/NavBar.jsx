@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@heroui/react";
 
 const navLinks = [
+  { label: "Home", href: "/" },
   { label: "Browse Jobs", href: "/browse-jobs" },
   { label: "Company", href: "/company" },
   { label: "Pricing", href: "/pricing" },
