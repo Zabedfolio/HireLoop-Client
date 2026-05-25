@@ -32,7 +32,7 @@ export default function NavBar() {
           </Link>
 
           {/* Right: Nav links + divider + Sign In + Get Started (Desktop) */}
-          <div className="hidden md:flex items-center gap-1 bg-[#222222] rounded-xl px-2 py-1.5">
+          <div className="hidden md:flex items-center gap-1 bg-[#222222] rounded-lg px-2 py-1.5">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -56,7 +56,7 @@ export default function NavBar() {
             <Button
               as={Link}
               href="/get-started"
-              className="bg-white text-black text-sm font-semibold px-5 h-9 rounded-xl hover:bg-gray-100 transition-colors duration-200 min-w-0 ml-1"
+              className="bg-white text-black text-sm font-semibold px-5 h-9 rounded-lg hover:bg-gray-100 transition-colors duration-200 min-w-0 ml-1"
               radius="lg"
             >
               Get Started
