@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FaFacebookF, FaPinterestP, FaLinkedinIn } from "react-icons/fa";
+import { FaFacebookF, FaGithub, FaLinkedinIn } from "react-icons/fa";
 
 const footerLinks = {
   Product: [
@@ -22,7 +22,7 @@ const footerLinks = {
 
 const socialLinks = [
   { icon: <FaFacebookF size={16} />, href: "https://facebook.com", label: "Facebook", active: false },
-  { icon: <FaPinterestP size={16} />, href: "https://pinterest.com", label: "Pinterest", active: true },
+  { icon: <FaGithub size={16} />, href: "https://github.com", label: "GitHub", active: true },
   { icon: <FaLinkedinIn size={16} />, href: "https://linkedin.com", label: "LinkedIn", active: false },
 ];
 
