@@ -15,7 +15,7 @@ export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-[#1a1a1a] border-b border-white/5 sticky top-0 z-50">
+    <nav className="w-full sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -78,8 +78,8 @@ export default function NavBar() {
 
       {/* Mobile Dropdown */}
       <div className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? "max-h-72 opacity-100" : "max-h-0 opacity-0"}`}>
-        <div className="px-4 pb-4 pt-2 bg-[#1a1a1a] border-t border-white/5">
-          <div className="bg-[#222222] rounded-xl px-2 py-2 flex flex-col gap-1">
+        <div className="px-4 pb-4 pt-2">
+          <div className="rounded-xl px-2 py-2 flex flex-col gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
