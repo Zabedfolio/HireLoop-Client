@@ -1,3 +1,4 @@
+import FeaturesSection from "@/components/FeaturedSection";
 import JobsSection from "@/components/JobSection";
 import StatsSection from "@/components/StateSection";
 import Image from "next/image";
@@ -7,6 +8,7 @@ export default function Home() {
     <div>
       <StatsSection></StatsSection>
       <JobsSection></JobsSection>
+      <FeaturesSection></FeaturesSection>
     </div>
   );
 }
