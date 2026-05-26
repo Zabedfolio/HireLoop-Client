@@ -253,6 +253,7 @@ export default function NavBar() {
                     onClick={async () => {
                       await authClient.signOut();
                       setMenuOpen(false);
+                      window.location.reload();
                     }}
                     className="flex-1 flex flex-col items-center gap-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 py-2.5 transition-colors"
                   >
