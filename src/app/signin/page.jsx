@@ -11,6 +11,7 @@ import {
     EyeSlash,
     At,
 } from '@gravity-ui/icons';
+import toast from 'react-hot-toast';
 
 const GoogleIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24">
@@ -102,10 +103,10 @@ export default function SignInPage() {
                 callbackURL: '/',
             });
 
-            alert('Login successful');
+            toast.success('Login successful');
         } catch (error) {
             console.error(error);
-            alert(error?.message || 'Login failed');
+            toast.error(error?.message || 'Login failed');
         } finally {
             setLoading(false);
         }

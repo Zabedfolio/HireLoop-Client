@@ -13,6 +13,7 @@ import {
     At,
     Camera,
 } from '@gravity-ui/icons';
+import toast from 'react-hot-toast';
 
 const GoogleIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24">
@@ -121,10 +122,10 @@ export default function SignUpPage() {
                 callbackURL: '/',
             });
 
-            alert('Account created successfully');
+            toast.success('Account created successfully');
         } catch (error) {
             console.error(error);
-            alert(error?.message || 'Signup failed');
+            toast.error(error?.message || 'Signup failed');
         } finally {
             setLoading(false);
         }
@@ -443,7 +444,7 @@ export default function SignUpPage() {
                             Already have an account?{' '}
 
                             <Link
-                                href="/login"
+                                href="/signin"
                                 className="text-[#7B6FFF] hover:text-[#9B8FFF] transition-colors"
                             >
                                 Sign in
