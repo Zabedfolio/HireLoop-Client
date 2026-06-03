@@ -64,7 +64,7 @@ const fieldVariant = {
 };
 
 const roles = [
-    { value: 'seeker', label: 'Job Seeker' },
+    { value: 'job_seeker', label: 'Job Seeker' },
     { value: 'recruiter', label: 'Recruiter' },
 ];
 
@@ -83,40 +83,59 @@ export default function SignUpPage() {
         confirmPassword: '',
     });
 
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
+    console.log('Form Data:', formData);
 
-        if (formData.password !== formData.confirmPassword) {
-            alert('Passwords do not match');
+    if (formData.password !== formData.confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+    if (formData.password.length < 8) {
+        alert('Password must be at least 8 characters');
+        return;
+    }
+
+    try {
+        setLoading(true);
+        const result = await signUp.email({
+            email: formData.email,
+            password: formData.password,
+            name: formData.name,
+            role: formData.role,
+            image: formData.image,
+            callbackURL: '/',
+        });
+
+        if (result?.error) {
+            const message = result.error.message?.toLowerCase() || '';
+            if (message.includes('email') || message.includes('already') || message.includes('exist')) {
+                toast.error('An account with this email already exists');
+            } else {
+                toast.error(result.error.message || 'Signup failed');
+            }
             return;
         }
-        if (formData.password.length < 8) {
-            alert('Password must be at least 8 characters');
-            return;
-        }
 
-        try {
-            setLoading(true);
-            await signUp.email({
-                email: formData.email,
-                password: formData.password,
-                name: formData.name,
-                image: formData.image,
-                callbackURL: '/',
-            });
-            toast.success('Account created successfully');
-        } catch (error) {
-            console.error(error);
+        toast.success('Account created successfully');
+    } catch (error) {
+        console.error(error);
+        const message = error?.message?.toLowerCase() || '';
+        if (message.includes('email') || message.includes('already') || message.includes('exist')) {
+            toast.error('An account with this email already exists');
+        } else {
             toast.error(error?.message || 'Signup failed');
-        } finally {
-            setLoading(false);
         }
-    };
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <section className="relative min-h-screen flex items-center justify-center bg-black px-4 py-12 overflow-hidden">
