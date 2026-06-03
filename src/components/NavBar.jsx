@@ -106,8 +106,9 @@ function UserMenu({ user }) {
           <div className="px-2 pb-2 border-t border-white/10 pt-1.5">
             <button
               onClick={async () => {
-                await authClient.signOut();
+                await authClient.signOut({ callbackURL: '/' });
                 setOpen(false);
+                window.location.assign('/');
               }}
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
             >
@@ -251,9 +252,9 @@ export default function NavBar() {
                   <div className="w-px bg-white/10" />
                   <button
                     onClick={async () => {
-                      await authClient.signOut();
+                      await authClient.signOut({ callbackURL: '/' });
                       setMenuOpen(false);
-                      window.location.reload();
+                      window.location.assign('/');
                     }}
                     className="flex-1 flex flex-col items-center gap-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 py-2.5 transition-colors"
                   >
