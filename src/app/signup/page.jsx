@@ -7,6 +7,7 @@ import { signUp } from '@/lib/auth-client';
 import { Briefcase, Person, Lock, Eye, EyeSlash, At, Camera } from '@gravity-ui/icons';
 import toast from 'react-hot-toast';
 import { motion } from 'motion/react';
+import { Radio, RadioGroup } from "@heroui/react";
 
 const GoogleIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24">
@@ -57,11 +58,15 @@ const statCards = [
     { value: '25K+', label: 'Hired' },
 ];
 
-// Shared field stagger child variant
 const fieldVariant = {
     hidden: { opacity: 0, y: 12 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease } },
 };
+
+const roles = [
+    { value: 'seeker', label: 'Job Seeker' },
+    { value: 'recruiter', label: 'Recruiter' },
+];
 
 export default function SignUpPage() {
     const [isVisible, setIsVisible] = useState(false);
@@ -71,6 +76,7 @@ export default function SignUpPage() {
 
     const [formData, setFormData] = useState({
         name: '',
+        role: 'job_seeker',
         email: '',
         image: '',
         password: '',
@@ -163,7 +169,6 @@ export default function SignUpPage() {
                         visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
                     }}
                 >
-                    {/* Badge */}
                     <motion.div
                         className="inline-flex w-fit items-center gap-2 border border-white/10 bg-white/[0.03] px-4 py-2 rounded-full backdrop-blur-xl mb-6"
                         variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease } } }}
@@ -172,7 +177,6 @@ export default function SignUpPage() {
                         <span className="text-white text-sm font-medium">HireLoop</span>
                     </motion.div>
 
-                    {/* Heading */}
                     <motion.h1
                         className="text-5xl font-semibold text-white leading-tight"
                         variants={{ hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease } } }}
@@ -180,7 +184,6 @@ export default function SignUpPage() {
                         Build your <br />career with <br />confidence.
                     </motion.h1>
 
-                    {/* Subtext */}
                     <motion.p
                         className="text-white/50 mt-6 text-lg leading-relaxed max-w-lg"
                         variants={{ hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease } } }}
@@ -189,7 +192,6 @@ export default function SignUpPage() {
                         building connections, and landing dream jobs through HireLoop.
                     </motion.p>
 
-                    {/* Stat Cards */}
                     <motion.div
                         className="grid grid-cols-3 gap-4 mt-10 max-w-lg"
                         variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } } }}
@@ -275,7 +277,7 @@ export default function SignUpPage() {
                             <div className="h-px bg-white/10 flex-1" />
                         </motion.div>
 
-                        {/* Form — staggered fields */}
+                        {/* Form */}
                         <motion.form
                             onSubmit={handleSubmit}
                             className="space-y-4"
@@ -296,6 +298,30 @@ export default function SignUpPage() {
                                     onChange={handleChange}
                                     required
                                 />
+                            </motion.div>
+
+                            {/* Role Selection — custom toggle, no HeroUI internals */}
+                            <motion.div variants={fieldVariant}>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-white/60 text-sm">I am a</label>
+                                    <div className="flex gap-3">
+                                        {roles.map(({ value, label }) => (
+                                            <button
+                                                key={value}
+                                                type="button"
+                                                onClick={() => setFormData((prev) => ({ ...prev, role: value }))}
+                                                className={[
+                                                    'flex-1 py-3 rounded-xl border text-sm font-medium transition-all duration-200',
+                                                    formData.role === value
+                                                        ? 'border-[#5B4DFF] bg-[#5B4DFF]/10 text-white'
+                                                        : 'border-white/10 bg-white/[0.04] text-white/60 hover:border-white/20 hover:text-white/80',
+                                                ].join(' ')}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </motion.div>
 
                             <motion.div variants={fieldVariant}>
