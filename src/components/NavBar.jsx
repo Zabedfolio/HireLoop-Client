@@ -37,7 +37,7 @@ function UserMenu({ user }) {
       {/* Trigger pill */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full pl-1 pr-3 py-1 transition-all duration-200"
+        className="flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl px-3 py-2 transition-all duration-200"
       >
         <Image
           src={user.image || "/images/default-avatar.png"}

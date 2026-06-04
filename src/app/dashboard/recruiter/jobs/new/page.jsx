@@ -76,7 +76,7 @@ const NewJob = () => {
                                     <option value="">Job Type</option>
                                     <option value="full_time">Full-time</option>
                                     <option value="part_time">Part-time</option>
-                                    <option value="remote">Remote</option>
+                                    {/* <option value="remote">Remote</option> */}
                                     <option value="contract">Contract</option>
                                     <option value="internship">Internship</option>
                                 </select>
