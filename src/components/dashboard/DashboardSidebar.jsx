@@ -9,6 +9,8 @@ import Persons from '@gravity-ui/icons/Persons';
 import Gear from '@gravity-ui/icons/Gear';
 import House from '@gravity-ui/icons/House';
 import { useSession } from '@/lib/auth-client';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutCellsLarge },
@@ -79,7 +81,16 @@ function FullSidebarContent({ active, setActive, onToggle, onClose }) {
         <>
             {/* Header row: logo + collapse toggle */}
             <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
-                <h2 className="text-white text-xl font-bold tracking-tight">HireLoop</h2>
+                <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+            <Image
+              src="/images/logo.png"
+              alt="Programming Hero Logo"
+              width={86}
+              height={86}
+              className="rounded-lg"
+              priority
+            />
+          </Link>
                 <button
                     onClick={onToggle}
                     className="
