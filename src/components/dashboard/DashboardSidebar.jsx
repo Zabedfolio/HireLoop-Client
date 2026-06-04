@@ -8,14 +8,25 @@ import Briefcase from '@gravity-ui/icons/Briefcase';
 import Persons from '@gravity-ui/icons/Persons';
 import Gear from '@gravity-ui/icons/Gear';
 import House from '@gravity-ui/icons/House';
+import { useSession } from '@/lib/auth-client';
 
 const navItems = [
-    { id: 'dashboard',    label: 'Dashboard',    icon: LayoutCellsLarge },
-    { id: 'company',      label: 'My Company',   icon: House },
-    { id: 'jobs',         label: 'Manage Jobs',  icon: Briefcase },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutCellsLarge },
+    { id: 'company', label: 'My Company', icon: House },
+    { id: 'jobs', label: 'Manage Jobs', icon: Briefcase },
     { id: 'applications', label: 'Applications', icon: Persons },
-    { id: 'settings',     label: 'Settings',     icon: Gear },
+    { id: 'settings', label: 'Settings', icon: Gear },
 ];
+
+function getInitials(name) {
+    if (!name) return '??';
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+}
 
 /* ─────────────────────────────────────────────
    Shared nav list — used in both drawer & desktop
@@ -58,6 +69,12 @@ function NavList({ active, setActive, collapsed = false, onClose }) {
    Full sidebar content (drawer + desktop expanded)
 ───────────────────────────────────────────── */
 function FullSidebarContent({ active, setActive, onToggle, onClose }) {
+    const { data: session } = useSession();
+    const userName = session?.user?.name ?? 'Unknown User';
+    const userRole = session?.user?.role ?? 'Recruiter';
+    const userImage = session?.user?.image || null;
+    const initials = getInitials(userName);
+
     return (
         <>
             {/* Header row: logo + collapse toggle */}
@@ -81,12 +98,15 @@ function FullSidebarContent({ active, setActive, onToggle, onClose }) {
             <div className="px-4 pt-5">
                 <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
                     <div className="flex items-center gap-3">
-                        <div className="h-11 w-11 shrink-0 rounded-2xl bg-gradient-to-br from-[#5C53FE] to-[#7A73FF] flex items-center justify-center text-white text-sm font-bold">
-                            AS
+                        <div className={`h-11 w-11 shrink-0 rounded-2xl overflow-hidden flex items-center justify-center text-white text-sm font-bold ${!userImage ? 'bg-gradient-to-br from-[#5C53FE] to-[#7A73FF]' : ''}`}>
+                            {userImage
+                                ? <img src={userImage} alt={userName} className="h-full w-full object-cover" />
+                                : initials
+                            }
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-white text-sm font-semibold truncate">Alex Sterling</h3>
-                            <p className="text-white/50 text-xs">Recruiter</p>
+                            <h3 className="text-white text-sm font-semibold truncate">{userName}</h3>
+                            <p className="text-white/50 text-xs">{userRole}</p>
                         </div>
                     </div>
                     <div className="mt-3 inline-flex rounded-full bg-[#5C53FE]/15 border border-[#5C53FE]/30 px-3 py-1">
@@ -112,6 +132,10 @@ function FullSidebarContent({ active, setActive, onToggle, onClose }) {
    Icon-only rail (desktop collapsed state)
 ───────────────────────────────────────────── */
 function CollapsedRail({ active, setActive, onToggle }) {
+    const { data: session } = useSession();
+    const userName = session?.user?.name ?? 'Unknown User';
+    const userImage = session?.user?.image || null;
+    const initials = getInitials(userName);
     return (
         <div className="flex flex-col items-center py-5 gap-2 h-full">
             {/* Expand button at top */}
@@ -128,8 +152,11 @@ function CollapsedRail({ active, setActive, onToggle }) {
             </button>
 
             {/* Avatar dot */}
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#5C53FE] to-[#7A73FF] flex items-center justify-center text-white text-xs font-bold mb-2">
-                AS
+            <div className={`h-9 w-9 rounded-xl overflow-hidden flex items-center justify-center text-white text-xs font-bold mb-2 ${!userImage ? 'bg-gradient-to-br from-[#5C53FE] to-[#7A73FF]' : ''}`}>
+                {userImage
+                    ? <img src={userImage} alt={userName} className="h-full w-full object-cover" />
+                    : initials
+                }
             </div>
 
             <div className="w-full px-2 h-px bg-white/10 my-1" />
@@ -139,19 +166,15 @@ function CollapsedRail({ active, setActive, onToggle }) {
     );
 }
 
-/* ─────────────────────────────────────────────
-   Main export
-───────────────────────────────────────────── */
+
 export default function DashboardSidebar() {
-    const [active, setActive]         = useState('dashboard');
+    const [active, setActive] = useState('dashboard');
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [collapsed, setCollapsed]   = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
 
     return (
         <>
-            {/* ══════════════════════════════════════
-                MOBILE — header bar (no fixed overlap)
-            ══════════════════════════════════════ */}
+
             <div className="
                 lg:hidden
                 flex items-center gap-3
@@ -219,9 +242,7 @@ export default function DashboardSidebar() {
                 )}
             </AnimatePresence>
 
-            {/* ══════════════════════════════════════
-                DESKTOP — collapsible sidebar
-            ══════════════════════════════════════ */}
+
             <motion.aside
                 animate={{ width: collapsed ? 68 : 280 }}
                 transition={{ type: 'tween', duration: 0.22 }}
@@ -237,12 +258,12 @@ export default function DashboardSidebar() {
                         active={active}
                         setActive={setActive}
                         onToggle={() => setCollapsed(false)}
-                      />
+                    />
                     : <FullSidebarContent
                         active={active}
                         setActive={setActive}
                         onToggle={() => setCollapsed(true)}
-                      />
+                    />
                 }
             </motion.aside>
         </>
