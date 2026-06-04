@@ -22,6 +22,7 @@ const navLinks = [
 function UserMenu({ user }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  console.log("UserMenu render", { user });
 
   useEffect(() => {
     const handler = (e) => {
@@ -145,7 +146,7 @@ export default function NavBar() {
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1 bg-[#222222] rounded-lg px-2 py-1.5">
+          <div className="hidden md:flex items-center gap-1 bg-[#222222] rounded-lg px-2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -222,8 +223,8 @@ export default function NavBar() {
                   <Image
                     src={user.image || "/images/default-avatar.png"}
                     alt={user.name ?? "avatar"}
-                    width={36}
-                    height={36}
+                    width={26}
+                    height={26}
                     className="rounded-full ring-2 ring-[#5C53FE]/40"
                   />
                   <div className="min-w-0">
