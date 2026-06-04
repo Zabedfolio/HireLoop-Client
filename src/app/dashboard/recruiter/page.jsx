@@ -7,35 +7,36 @@ import Persons from '@gravity-ui/icons/Persons';
 import Thunderbolt from '@gravity-ui/icons/Thunderbolt';
 import CircleCheckFill from '@gravity-ui/icons/CircleCheckFill';
 import Plus from '@gravity-ui/icons/Plus';
+import StatsCard from '@/components/dashboard/Statscard';
 
 /* ── Static data ─────────────────────────────────────────── */
 const stats = [
-    { label: 'Total Job Posts',   value: '48',    icon: FileText },
-    { label: 'Total Applicants',  value: '1,284', icon: Persons },
-    { label: 'Active Jobs',       value: '18',    icon: Thunderbolt },
-    { label: 'Jobs Closed',       value: '32',    icon: CircleCheckFill },
+    { label: 'Total Job Posts', value: '48', icon: FileText },
+    { label: 'Total Applicants', value: '1,284', icon: Persons },
+    { label: 'Active Jobs', value: '18', icon: Thunderbolt },
+    { label: 'Jobs Closed', value: '32', icon: CircleCheckFill },
 ];
 
 const applications = [
-    { id: 1, name: 'Julianne Moore',  role: 'Senior Product Designer', date: 'Oct 24, 2023', exp: '6 years', status: 'Interviewing' },
-    { id: 2, name: 'Robert Downey',   role: 'Backend Engineer',        date: 'Oct 23, 2023', exp: '4 years', status: 'New' },
-    { id: 3, name: 'Emma Stone',      role: 'Marketing Lead',          date: 'Oct 22, 2023', exp: '8 years', status: 'Reviewing' },
-    { id: 4, name: 'Chris Pratt',     role: 'Product Manager',         date: 'Oct 21, 2023', exp: '5 years', status: 'Rejected' },
+    { id: 1, name: 'Julianne Moore', role: 'Senior Product Designer', date: 'Oct 24, 2023', exp: '6 years', status: 'Interviewing' },
+    { id: 2, name: 'Robert Downey', role: 'Backend Engineer', date: 'Oct 23, 2023', exp: '4 years', status: 'New' },
+    { id: 3, name: 'Emma Stone', role: 'Marketing Lead', date: 'Oct 22, 2023', exp: '8 years', status: 'Reviewing' },
+    { id: 4, name: 'Chris Pratt', role: 'Product Manager', date: 'Oct 21, 2023', exp: '5 years', status: 'Rejected' },
 ];
 
 const companies = [
-    { id: 1, name: 'Google Inc.',      sub: 'Technology • Mountain View', jobs: 24, color: '#4285F4', letter: 'G' },
-    { id: 2, name: 'Meta Platforms',   sub: 'Social Media • Menlo Park',  jobs: 18, color: '#0082FB', letter: 'M' },
-    { id: 3, name: 'Stripe',           sub: 'Fintech • San Francisco',    jobs: 12, color: '#635BFF', letter: 'S' },
-    { id: 4, name: 'Tesla',            sub: 'Automotive • Austin',        jobs: 31, color: '#E82127', letter: 'T' },
+    { id: 1, name: 'Google Inc.', sub: 'Technology • Mountain View', jobs: 24, color: '#4285F4', letter: 'G' },
+    { id: 2, name: 'Meta Platforms', sub: 'Social Media • Menlo Park', jobs: 18, color: '#0082FB', letter: 'M' },
+    { id: 3, name: 'Stripe', sub: 'Fintech • San Francisco', jobs: 12, color: '#635BFF', letter: 'S' },
+    { id: 4, name: 'Tesla', sub: 'Automotive • Austin', jobs: 31, color: '#E82127', letter: 'T' },
 ];
 
 /* ── Status badge ────────────────────────────────────────── */
 const statusStyles = {
     Interviewing: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-    New:          'bg-white/10       text-white/70    border-white/15',
-    Reviewing:    'bg-amber-500/15   text-amber-400   border-amber-500/25',
-    Rejected:     'bg-red-500/15     text-red-400     border-red-500/25',
+    New: 'bg-white/10       text-white/70    border-white/15',
+    Reviewing: 'bg-amber-500/15   text-amber-400   border-amber-500/25',
+    Rejected: 'bg-red-500/15     text-red-400     border-red-500/25',
 };
 
 function StatusBadge({ status }) {
@@ -64,10 +65,6 @@ function Avatar({ name, size = 'md' }) {
 export default function RecruiterDashboardHomePage() {
     const { data: session, isPending } = useSession();
 
-    const firstName = isPending
-        ? ''
-        : session?.user?.name?.split(' ')[0] ?? 'there';
-
     return (
         <div className="min-h-full text-white">
 
@@ -83,23 +80,8 @@ export default function RecruiterDashboardHomePage() {
 
             {/* Stats grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                {stats.map(({ label, value, icon: Icon }) => (
-                    <div
-                        key={label}
-                        className="
-                            rounded-2xl border border-white/10 bg-white/[0.03]
-                            p-5 flex flex-col gap-6
-                            hover:bg-white/[0.05] transition-colors duration-200
-                        "
-                    >
-                        <div className="h-10 w-10 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/60">
-                            <Icon width={18} height={18} />
-                        </div>
-                        <div>
-                            <p className="text-white/50 text-xs mb-1">{label}</p>
-                            <p className="text-white text-2xl font-bold tracking-tight">{value}</p>
-                        </div>
-                    </div>
+                {stats.map(({ label, value, icon }) => (
+                    <StatsCard key={label} label={label} value={value} icon={icon} />
                 ))}
             </div>
 
@@ -107,17 +89,23 @@ export default function RecruiterDashboardHomePage() {
             <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
 
                 {/* Recent Applications */}
+                {/* Recent Applications */}
                 <div>
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-base font-semibold text-white">Recent Applications</h2>
-                        <button className="text-xs text-white/50 hover:text-white transition-colors">View all</button>
+                        <button className="text-xs text-white/50 hover:text-white transition-colors">
+                            View all
+                        </button>
                     </div>
 
                     <div className="rounded-2xl border border-white/10 overflow-hidden">
-                        {/* Table header */}
-                        <div className="grid grid-cols-[2fr_2fr_1.5fr_1fr_1.2fr] gap-4 px-5 py-3 border-b border-white/10 bg-white/[0.02]">
-                            {['Candidate Name', 'Role', 'Date Applied', 'Experience', 'Status'].map(h => (
-                                <span key={h} className="text-xs font-medium text-white/40 uppercase tracking-wider">{h}</span>
+
+                        {/* Desktop Header */}
+                        <div className="hidden md:grid grid-cols-[2fr_2fr_1.5fr_1fr_1.2fr] gap-4 px-5 py-3 border-b border-white/10 bg-white/[0.02]">
+                            {['Candidate', 'Role', 'Date', 'Exp', 'Status'].map(h => (
+                                <span key={h} className="text-xs font-medium text-white/40 uppercase tracking-wider">
+                                    {h}
+                                </span>
                             ))}
                         </div>
 
@@ -126,20 +114,49 @@ export default function RecruiterDashboardHomePage() {
                             <div
                                 key={app.id}
                                 className={`
-                                    grid grid-cols-[2fr_2fr_1.5fr_1fr_1.2fr] gap-4
-                                    items-center px-5 py-4
-                                    hover:bg-white/[0.03] transition-colors duration-150 cursor-pointer
-                                    ${i < applications.length - 1 ? 'border-b border-white/[0.06]' : ''}
-                                `}
+                    px-5 py-4
+                    hover:bg-white/[0.03] transition-colors duration-150 cursor-pointer
+                    ${i < applications.length - 1 ? 'border-b border-white/[0.06]' : ''}
+                `}
                             >
-                                <div className="flex items-center gap-3 min-w-0">
-                                    <Avatar name={app.name} />
-                                    <span className="text-sm font-semibold text-white truncate">{app.name}</span>
+
+                                {/* 🔥 MOBILE VIEW (Card Layout) */}
+                                <div className="md:hidden space-y-3">
+
+                                    <div className="flex items-center gap-3">
+                                        <Avatar name={app.name} />
+                                        <div>
+                                            <p className="text-sm font-semibold text-white">{app.name}</p>
+                                            <p className="text-xs text-white/50">{app.role}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between text-xs text-white/50">
+                                        <span>{app.date}</span>
+                                        <span>{app.exp}</span>
+                                    </div>
+
+                                    <div>
+                                        <StatusBadge status={app.status} />
+                                    </div>
                                 </div>
-                                <span className="text-sm text-white/60 truncate">{app.role}</span>
-                                <span className="text-sm text-white/50">{app.date}</span>
-                                <span className="text-sm text-white/50">{app.exp}</span>
-                                <StatusBadge status={app.status} />
+
+                                {/* 💻 TABLE VIEW */}
+                                <div className="hidden md:grid grid-cols-[2fr_2fr_1.5fr_1fr_1.2fr] gap-4 items-center">
+
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <Avatar name={app.name} />
+                                        <span className="text-sm font-semibold text-white truncate">
+                                            {app.name}
+                                        </span>
+                                    </div>
+
+                                    <span className="text-sm text-white/60 truncate">{app.role}</span>
+                                    <span className="text-sm text-white/50">{app.date}</span>
+                                    <span className="text-sm text-white/50">{app.exp}</span>
+                                    <StatusBadge status={app.status} />
+                                </div>
+
                             </div>
                         ))}
                     </div>
