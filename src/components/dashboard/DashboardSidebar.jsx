@@ -1,0 +1,250 @@
+'use client';
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import LayoutCellsLarge from '@gravity-ui/icons/LayoutCellsLarge';
+import LayoutSideContentLeft from '@gravity-ui/icons/LayoutSideContentLeft';
+import Briefcase from '@gravity-ui/icons/Briefcase';
+import Persons from '@gravity-ui/icons/Persons';
+import Gear from '@gravity-ui/icons/Gear';
+import House from '@gravity-ui/icons/House';
+
+const navItems = [
+    { id: 'dashboard',    label: 'Dashboard',    icon: LayoutCellsLarge },
+    { id: 'company',      label: 'My Company',   icon: House },
+    { id: 'jobs',         label: 'Manage Jobs',  icon: Briefcase },
+    { id: 'applications', label: 'Applications', icon: Persons },
+    { id: 'settings',     label: 'Settings',     icon: Gear },
+];
+
+/* ─────────────────────────────────────────────
+   Shared nav list — used in both drawer & desktop
+───────────────────────────────────────────── */
+function NavList({ active, setActive, collapsed = false, onClose }) {
+    return (
+        <nav className={`flex-1 py-6 space-y-1 ${collapsed ? 'px-2' : 'px-4'}`}>
+            {navItems.map(({ id, label, icon: Icon }) => {
+                const isActive = active === id;
+                return (
+                    <button
+                        key={id}
+                        onClick={() => { setActive(id); onClose?.(); }}
+                        title={collapsed ? label : undefined}
+                        className={`
+                            group relative w-full flex items-center
+                            rounded-2xl transition-all duration-200
+                            ${collapsed ? 'justify-center p-3' : 'gap-4 px-4 py-3'}
+                            ${isActive
+                                ? 'bg-[#5C53FE]/15 border border-[#5C53FE]/30 text-white'
+                                : 'text-white/60 hover:bg-white/[0.04] hover:text-white border border-transparent'
+                            }
+                        `}
+                    >
+                        {isActive && (
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-1 rounded-r-full bg-[#5C53FE]" />
+                        )}
+                        <Icon width={18} height={18} />
+                        {!collapsed && (
+                            <span className="font-medium text-sm">{label}</span>
+                        )}
+                    </button>
+                );
+            })}
+        </nav>
+    );
+}
+
+/* ─────────────────────────────────────────────
+   Full sidebar content (drawer + desktop expanded)
+───────────────────────────────────────────── */
+function FullSidebarContent({ active, setActive, onToggle, onClose }) {
+    return (
+        <>
+            {/* Header row: logo + collapse toggle */}
+            <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
+                <h2 className="text-white text-xl font-bold tracking-tight">HireLoop</h2>
+                <button
+                    onClick={onToggle}
+                    className="
+                        hidden lg:flex
+                        h-8 w-8 rounded-lg items-center justify-center
+                        text-white/50 hover:text-white hover:bg-white/[0.06]
+                        transition-colors duration-200
+                    "
+                    aria-label="Collapse sidebar"
+                >
+                    <LayoutSideContentLeft width={17} height={17} />
+                </button>
+            </div>
+
+            {/* Recruiter card */}
+            <div className="px-4 pt-5">
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="h-11 w-11 shrink-0 rounded-2xl bg-gradient-to-br from-[#5C53FE] to-[#7A73FF] flex items-center justify-center text-white text-sm font-bold">
+                            AS
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="text-white text-sm font-semibold truncate">Alex Sterling</h3>
+                            <p className="text-white/50 text-xs">Recruiter</p>
+                        </div>
+                    </div>
+                    <div className="mt-3 inline-flex rounded-full bg-[#5C53FE]/15 border border-[#5C53FE]/30 px-3 py-1">
+                        <span className="text-[#8E87FF] text-xs font-medium">Premium</span>
+                    </div>
+                </div>
+            </div>
+
+            <NavList active={active} setActive={setActive} onClose={onClose} />
+
+            {/* Bottom help card */}
+            <div className="p-4">
+                <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#5C53FE]/20 to-transparent p-4">
+                    <p className="text-white text-sm font-medium">Need help?</p>
+                    <p className="text-white/60 text-xs mt-1">Contact our support team anytime.</p>
+                </div>
+            </div>
+        </>
+    );
+}
+
+/* ─────────────────────────────────────────────
+   Icon-only rail (desktop collapsed state)
+───────────────────────────────────────────── */
+function CollapsedRail({ active, setActive, onToggle }) {
+    return (
+        <div className="flex flex-col items-center py-5 gap-2 h-full">
+            {/* Expand button at top */}
+            <button
+                onClick={onToggle}
+                className="
+                    h-9 w-9 rounded-xl flex items-center justify-center mb-2
+                    text-white/50 hover:text-white hover:bg-white/[0.06]
+                    transition-colors duration-200
+                "
+                aria-label="Expand sidebar"
+            >
+                <LayoutSideContentLeft width={18} height={18} />
+            </button>
+
+            {/* Avatar dot */}
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#5C53FE] to-[#7A73FF] flex items-center justify-center text-white text-xs font-bold mb-2">
+                AS
+            </div>
+
+            <div className="w-full px-2 h-px bg-white/10 my-1" />
+
+            <NavList active={active} setActive={setActive} collapsed />
+        </div>
+    );
+}
+
+/* ─────────────────────────────────────────────
+   Main export
+───────────────────────────────────────────── */
+export default function DashboardSidebar() {
+    const [active, setActive]         = useState('dashboard');
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [collapsed, setCollapsed]   = useState(false);
+
+    return (
+        <>
+            {/* ══════════════════════════════════════
+                MOBILE — header bar (no fixed overlap)
+            ══════════════════════════════════════ */}
+            <div className="
+                lg:hidden
+                flex items-center gap-3
+                px-4 py-3
+                border-b border-white/10
+                bg-[#080808]
+                shrink-0
+                w-full
+            ">
+                <button
+                    onClick={() => setMobileOpen(true)}
+                    className="
+                        h-9 w-9 rounded-xl
+                        border border-white/10 bg-white/[0.04]
+                        flex items-center justify-center
+                        text-white/70 hover:text-white
+                        transition-colors duration-200
+                    "
+                    aria-label="Open sidebar"
+                >
+                    <LayoutSideContentLeft width={18} height={18} />
+                </button>
+                <h1 className="text-white text-sm font-semibold tracking-wide">
+                    Dashboard Sidebar
+                </h1>
+            </div>
+
+            {/* Mobile backdrop */}
+            <AnimatePresence>
+                {mobileOpen && (
+                    <motion.div
+                        key="mobile-overlay"
+                        onClick={() => setMobileOpen(false)}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="lg:hidden fixed inset-0 bg-black/60 z-40"
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Mobile drawer */}
+            <AnimatePresence>
+                {mobileOpen && (
+                    <motion.aside
+                        key="mobile-drawer"
+                        initial={{ x: '-100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '-100%' }}
+                        transition={{ type: 'tween', duration: 0.22 }}
+                        className="
+                            lg:hidden
+                            fixed top-0 left-0 z-50
+                            h-screen w-[280px]
+                            bg-[#080808] border-r border-white/10
+                            flex flex-col
+                        "
+                    >
+                        <FullSidebarContent
+                            active={active}
+                            setActive={setActive}
+                            onClose={() => setMobileOpen(false)}
+                        />
+                    </motion.aside>
+                )}
+            </AnimatePresence>
+
+            {/* ══════════════════════════════════════
+                DESKTOP — collapsible sidebar
+            ══════════════════════════════════════ */}
+            <motion.aside
+                animate={{ width: collapsed ? 68 : 280 }}
+                transition={{ type: 'tween', duration: 0.22 }}
+                className="
+                    hidden lg:flex flex-col
+                    h-screen sticky top-0 shrink-0
+                    bg-[#080808] border-r border-white/10
+                    overflow-hidden
+                "
+            >
+                {collapsed
+                    ? <CollapsedRail
+                        active={active}
+                        setActive={setActive}
+                        onToggle={() => setCollapsed(false)}
+                      />
+                    : <FullSidebarContent
+                        active={active}
+                        setActive={setActive}
+                        onToggle={() => setCollapsed(true)}
+                      />
+                }
+            </motion.aside>
+        </>
+    );
+}
