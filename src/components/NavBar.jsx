@@ -166,7 +166,7 @@ export default function NavBar() {
             ) : (
               <>
                 <Link
-                  href="/signin"
+                  href="/auth/signin"
                   className="text-sm font-semibold px-4 py-1.5 rounded-lg transition-opacity hover:opacity-80"
                   style={{ color: "#5C53FE" }}
                 >

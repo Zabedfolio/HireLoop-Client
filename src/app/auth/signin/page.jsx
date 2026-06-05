@@ -332,7 +332,7 @@ export default function SignInPage() {
                             transition={{ delay: 1.05, duration: 0.5 }}
                         >
                             Don&apos;t have an account?{' '}
-                            <Link href="/signup" className="text-[#7B6FFF] hover:text-[#9B8FFF] transition-colors">
+                            <Link href="/auth/signup" className="text-[#7B6FFF] hover:text-[#9B8FFF] transition-colors">
                                 Sign up
                             </Link>
                         </motion.p>
