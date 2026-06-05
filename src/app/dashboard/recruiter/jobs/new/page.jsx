@@ -1,12 +1,20 @@
 'use client';
 
 import { createJob } from '@/lib/actions/job';
+import { redirect } from 'next/navigation';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const NewJob = () => {
     const [salaryError, setSalaryError] = useState('');
     const [isRemote, setIsRemote] = useState(false);
+    const [location, setLocation] = useState('');
+
+    const [mockCompany] = useState({
+        name: "Acme Corp (Auto-filled)",
+        id: "company_123",
+        isApproved: true,
+    });
 
     const validateSalary = (min, max) => {
         if (min && max && Number(max) <= Number(min)) {
@@ -31,10 +39,20 @@ const NewJob = () => {
 
         if (!validateSalary(data.min_salary, data.max_salary)) return;
 
-        const res = await createJob(data);
+        const jobPayload = {
+            ...data,
+            companyId: mockCompany.id,
+            status: 'active',
+            isPubliclyVisible: true,
+        };
+
+        const res = await createJob(jobPayload);
         if(res.insertedId) {
             toast.success('Job posted successfully!');
             e.target.reset();
+            setIsRemote(false);
+            setLocation('');
+            redirect(`/dashboard/recruiter/`);
         } else {
             toast.error('Failed to post job. Please try again.');
         }
@@ -126,8 +144,9 @@ const NewJob = () => {
                                     <input
                                         name="location"
                                         placeholder="City, Country"
-                                        value={isRemote ? 'Remote' : undefined}
-                                        disabled={isRemote}
+                                        value={location}
+                                        readOnly={isRemote}
+                                        onChange={(e) => setLocation(e.target.value)}
                                         className={`input transition-opacity ${isRemote ? 'opacity-30 cursor-not-allowed' : ''}`} />
 
                                     <div className="flex items-center gap-2 px-1">
@@ -136,7 +155,11 @@ const NewJob = () => {
                                             name="is_remote"
                                             value="true"
                                             checked={isRemote}
-                                            onChange={(e) => setIsRemote(e.target.checked)} />
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                setIsRemote(checked);
+                                                setLocation(checked ? 'Remote' : '');
+                                            }} />
                                         <span className="text-sm text-white/60">Remote Job</span>
                                     </div>
                                 </div>
@@ -174,7 +197,7 @@ const NewJob = () => {
                                 Company
                             </h2>
 
-                            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                            <div className="p-4 rounded-xl border border-white/10 bg-white/2">
                                 <p className="text-sm text-white/70">
                                     Your company will be automatically linked.
                                 </p>
