@@ -1,7 +1,8 @@
 'use client';
 
+import { createJob } from '@/lib/actions/job';
 import React, { useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 const NewJob = () => {
     const [salaryError, setSalaryError] = useState('');
@@ -23,20 +24,24 @@ const NewJob = () => {
         validateSalary(min, max);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
 
         if (!validateSalary(data.min_salary, data.max_salary)) return;
 
-        toast.success('Job posted successfully!');
-        console.log(data);
+        const res = await createJob(data);
+        if(res.insertedId) {
+            toast.success('Job posted successfully!');
+            e.target.reset();
+        } else {
+            toast.error('Failed to post job. Please try again.');
+        }
     };
 
     return (
         <div className="min-h-screen text-white flex justify-center px-4 py-10">
-            <Toaster position="top-right" />
 
             <div className="w-full max-w-4xl rounded-2xl border border-white/10 bg-[#0B0B0C] overflow-hidden">
 
@@ -70,6 +75,7 @@ const NewJob = () => {
                                     <option value="">Job Category</option>
                                     <option value="engineering">Engineering</option>
                                     <option value="design">Design</option>
+                                    <option value="marketing">Marketing</option>
                                 </select>
 
                                 <select name="job_type" className="input">
