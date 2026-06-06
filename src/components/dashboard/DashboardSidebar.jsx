@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { usePathname } from 'next/navigation';
 import LayoutCellsLarge from '@gravity-ui/icons/LayoutCellsLarge';
 import LayoutSideContentLeft from '@gravity-ui/icons/LayoutSideContentLeft';
 import Briefcase from '@gravity-ui/icons/Briefcase';
@@ -13,11 +14,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutCellsLarge },
-    { id: 'company', label: 'My Company', icon: House },
-    { id: 'jobs', label: 'Manage Jobs', icon: Briefcase },
-    { id: 'applications', label: 'Applications', icon: Persons },
-    { id: 'settings', label: 'Settings', icon: Gear },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutCellsLarge, href: '/dashboard/recruiter' },
+    { id: 'company', label: 'My Company', icon: House, href: '/dashboard/recruiter/company' },
+    { id: 'jobs', label: 'Manage Jobs', icon: Briefcase, href: '/dashboard/recruiter/jobs' },
+    { id: 'applications', label: 'Applications', icon: Persons, href: '/dashboard/recruiter/applications' },
+    { id: 'settings', label: 'Settings', icon: Gear, href: '/dashboard/recruiter/settings' },
 ];
 
 function getInitials(name) {
@@ -30,22 +31,32 @@ function getInitials(name) {
         .toUpperCase();
 }
 
+function routeToNavId(pathname) {
+    if (pathname.startsWith('/dashboard/recruiter/company')) return 'company';
+    if (pathname.startsWith('/dashboard/recruiter/jobs')) return 'jobs';
+    if (pathname.startsWith('/dashboard/recruiter/applications')) return 'applications';
+    if (pathname.startsWith('/dashboard/recruiter/settings')) return 'settings';
+    if (pathname.startsWith('/dashboard/recruiter')) return 'dashboard';
+    return 'dashboard';
+}
+
 /* ─────────────────────────────────────────────
    Shared nav list — used in both drawer & desktop
 ───────────────────────────────────────────── */
 function NavList({ active, setActive, collapsed = false, onClose }) {
     return (
         <nav className={`flex-1 py-6 space-y-1 ${collapsed ? 'px-2' : 'px-4'}`}>
-            {navItems.map(({ id, label, icon: Icon }) => {
+            {navItems.map(({ id, label, href, icon: Icon }) => {
                 const isActive = active === id;
                 return (
-                    <button
+                    <Link
                         key={id}
+                        href={href}
                         onClick={() => { setActive(id); onClose?.(); }}
                         title={collapsed ? label : undefined}
                         className={`
-                            group relative w-full flex items-center
-                            rounded-2xl transition-all duration-200
+                            group relative flex items-center
+                            rounded-2xl transition-all duration-200 no-underline
                             ${collapsed ? 'justify-center p-3' : 'gap-4 px-4 py-3'}
                             ${isActive
                                 ? 'bg-[#5C53FE]/15 border border-[#5C53FE]/30 text-white'
@@ -60,7 +71,7 @@ function NavList({ active, setActive, collapsed = false, onClose }) {
                         {!collapsed && (
                             <span className="font-medium text-sm">{label}</span>
                         )}
-                    </button>
+                    </Link>
                 );
             })}
         </nav>
@@ -179,7 +190,9 @@ function CollapsedRail({ active, setActive, onToggle }) {
 
 
 export default function DashboardSidebar() {
-    const [active, setActive] = useState('dashboard');
+    const pathname = usePathname();
+    const active = routeToNavId(pathname || '/dashboard/recruiter');
+    const setActive = () => {};
     const [mobileOpen, setMobileOpen] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
 
