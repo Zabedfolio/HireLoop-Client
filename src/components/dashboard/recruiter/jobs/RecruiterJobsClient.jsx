@@ -650,12 +650,13 @@ const RecruiterJobsClient = ({ jobs }) => {
             <h1 style={{ margin: '3px 0 5px', fontSize: 26, fontWeight: 600, color: T.text1, letterSpacing: '-0.02em', lineHeight: 1 }}>Jobs</h1>
             <p style={{ margin: 0, fontSize: 12, color: T.text3 }}>Manage listings and track candidate applications.</p>
           </div>
-          <button
+          <a
+            href="/dashboard/recruiter/jobs/new"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 7,
               borderRadius: 10, background: T.text1, border: 'none',
               padding: '9px 16px', fontSize: 12, fontWeight: 600, color: '#000',
-              cursor: 'pointer', whiteSpace: 'nowrap',
+              cursor: 'pointer', whiteSpace: 'nowrap', textDecoration: 'none',
             }}
             onMouseEnter={e => e.currentTarget.style.background = '#d4d4d8'}
             onMouseLeave={e => e.currentTarget.style.background = T.text1}
@@ -664,7 +665,7 @@ const RecruiterJobsClient = ({ jobs }) => {
           >
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
             Post a job
-          </button>
+          </a>
         </div>
 
         {/* Stats */}
