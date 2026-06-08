@@ -22,7 +22,6 @@ const navLinks = [
 function UserMenu({ user }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  console.log("UserMenu render", { user });
 
   useEffect(() => {
     const handler = (e) => {

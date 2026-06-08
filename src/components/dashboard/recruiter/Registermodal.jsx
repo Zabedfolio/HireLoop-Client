@@ -7,7 +7,7 @@ import { XIcon, MapPinIcon, UploadIcon } from '@/components/dashboard/recruiter/
 import { createCompany } from '@/lib/actions/companies.js';
 import toast from 'react-hot-toast';
 
-const RegisterModal = ({ onClose, onSubmit, initialData = null }) => {
+const RegisterModal = ({ onClose, onSubmit, initialData = null, recruiter = null }) => {
   const [logoPreview, setLogoPreview] = useState(initialData?.logo || initialData?.logoPreview || null);
   const [logoFile, setLogoFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
@@ -75,10 +75,13 @@ const RegisterModal = ({ onClose, onSubmit, initialData = null }) => {
 
     await new Promise(r => setTimeout(r, 900));
 
+    const recruiterId = initialData?.recruiter_id || recruiter?.id || recruiter?.userId || recruiter?._id || recruiter?.sub || null;
+
     const payload = {
       ...data,
       logo: logoUrl,
       status: initialData?.status || 'pending',
+      recruiter_id: recruiter?.id,
     };
 
     try {
