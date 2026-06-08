@@ -1,15 +1,21 @@
 'use client';
 
 import React from 'react';
-import { ClockIcon, GlobeIcon, MapPinIcon, TagIcon, UsersIcon } from '@/components/dashboard/recruiter/Icons';
+import Image from 'next/image';
+import { BuildingIcon, ClockIcon, GlobeIcon, MapPinIcon, TagIcon, UsersIcon } from '@/components/dashboard/recruiter/Icons';
 import { T } from '@/lib/actions/Tokens';
 
-const PendingCompanyCard = ({ company }) => {
+const PendingCompanyCard = ({ company, onEdit }) => {
+  const logoSrc = company.logo || company.logoPreview;
+  const status = (company.status || 'pending').toLowerCase();
+  const statusLabel = company.status ? company.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Pending';
+  const isPending = status === 'pending';
+
   const metaItems = [
-    company.industry       && { icon: <TagIcon />,    label: company.industry.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) },
-    company.location       && { icon: <MapPinIcon />, label: company.location },
-    company.website_url    && { icon: <GlobeIcon />,  label: company.website_url.replace(/^https?:\/\//, '') },
-    company.employee_count && { icon: <UsersIcon />,  label: company.employee_count + ' employees' },
+    company.industry && { icon: <TagIcon />, label: company.industry.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) },
+    company.location && { icon: <MapPinIcon />, label: company.location },
+    company.website_url && { icon: <GlobeIcon />, label: company.website_url.replace(/^https?:\/\//, '') },
+    company.employee_count && { icon: <UsersIcon />, label: company.employee_count + ' employees' },
   ].filter(Boolean);
 
   return (
@@ -29,50 +35,72 @@ const PendingCompanyCard = ({ company }) => {
       </div>
 
       <div style={{ padding: '28px 28px 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18, flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18, flexWrap: 'wrap', flex: 1 }}>
 
-          {/* Logo */}
-          <div style={{
-            width: 64, height: 64, borderRadius: 14, flexShrink: 0,
-            border: `1px solid ${T.border}`,
-            background: 'rgba(255,255,255,0.04)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            overflow: 'hidden',
-          }}>
-            {company.logoPreview
-              ? <img src={company.logoPreview} alt="Company logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ color: T.text3 }}><BuildingIcon /></span>
-            }
-          </div>
-
-          {/* Info */}
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: T.text1, letterSpacing: '-0.01em' }}>
-                {company.company_name}
-              </h2>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                borderRadius: 9999, padding: '3px 10px',
-                fontSize: 11, fontWeight: 600, letterSpacing: '0.02em',
-                background: 'rgba(251,191,36,0.08)',
-                color: T.amber,
-                boxShadow: '0 0 0 1px rgba(251,191,36,0.2)',
-              }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: T.amber, flexShrink: 0 }} />
-                Pending
-              </span>
+            {/* Logo */}
+            <div style={{
+              width: 64, height: 64, borderRadius: 14, flexShrink: 0,
+              border: `1px solid ${T.border}`,
+              background: 'rgba(255,255,255,0.04)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              overflow: 'hidden',
+              position: 'relative',
+            }}>
+              {logoSrc
+                ? <Image src={logoSrc} alt="Company logo" fill style={{ objectFit: 'cover' }} />
+                : <span style={{ color: T.text3 }}><BuildingIcon /></span>
+              }
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px', marginTop: 10 }}>
-              {metaItems.map((item, i) => (
-                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: T.text3 }}>
-                  <span style={{ color: T.text3 }}>{item.icon}</span>
-                  {item.label}
+            {/* Info */}
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: T.text1, letterSpacing: '-0.01em' }}>
+                  {company.company_name}
+                </h2>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  borderRadius: 9999, padding: '3px 10px',
+                  fontSize: 11, fontWeight: 600, letterSpacing: '0.02em',
+                  background: isPending ? 'rgba(251,191,36,0.08)' : 'rgba(56,189,248,0.12)',
+                  color: isPending ? T.amber : T.cyan,
+                  boxShadow: isPending ? '0 0 0 1px rgba(251,191,36,0.2)' : '0 0 0 1px rgba(56,189,248,0.2)',
+                }}>
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: isPending ? T.amber : T.cyan, flexShrink: 0 }} />
+                  {statusLabel}
                 </span>
-              ))}
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px', marginTop: 10 }}>
+                {metaItems.map((item, i) => (
+                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: T.text3 }}>
+                    <span style={{ color: T.text3 }}>{item.icon}</span>
+                    {item.label}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
+          {onEdit && (
+            <div style={{ marginTop: 6, display: 'flex', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={onEdit}
+                style={{
+                  padding: '10px 16px', borderRadius: 10,
+                  border: `1px solid ${T.border}`,
+                  background: 'transparent', color: T.text1,
+                  cursor: 'pointer', fontSize: 12,
+                  fontWeight: 600, transition: 'background 0.15s, border-color 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = T.border; }}
+              >
+                Edit company
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Description */}

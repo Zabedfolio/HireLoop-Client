@@ -10,10 +10,27 @@ import React, { useState } from 'react';
 const MyCompanyClient = () => {
   const [showModal, setShowModal] = useState(false);
   const [company, setCompany]     = useState(null);
+  const [modalCompany, setModalCompany] = useState(null);
 
-  const handleRegister = (data) => {
-    setCompany({ ...data, status: 'pending' });
+  const openRegisterModal = () => {
+    setModalCompany(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = () => {
+    setModalCompany(company);
+    setShowModal(true);
+  };
+
+  const handleSaveCompany = (data) => {
+    setCompany({ ...data, status: data.status || 'pending' });
     setShowModal(false);
+    setModalCompany(null);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setModalCompany(null);
   };
 
   return (
@@ -40,17 +57,18 @@ const MyCompanyClient = () => {
         {/* Main content */}
         {!company ? (
           <div style={{ borderRadius: 16, border: `1px solid ${T.border}` }}>
-            <NoCompanyState onRegister={() => setShowModal(true)} />
+            <NoCompanyState onRegister={openRegisterModal} />
           </div>
         ) : (
-          <PendingCompanyCard company={company} />
+          <PendingCompanyCard company={company} onEdit={openEditModal} />
         )}
       </div>
 
       {showModal && (
         <RegisterModal
-          onClose={() => setShowModal(false)}
-          onSubmit={handleRegister}
+          onClose={closeModal}
+          onSubmit={handleSaveCompany}
+          initialData={modalCompany}
         />
       )}
     </div>

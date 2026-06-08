@@ -1,14 +1,17 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import Image from 'next/image';
 import { T } from '@/lib/actions/Tokens';
 import { XIcon, MapPinIcon, UploadIcon } from '@/components/dashboard/recruiter/Icons';
+import { createCompany } from '@/lib/actions/companies.js';
+import toast from 'react-hot-toast';
 
-const RegisterModal = ({ onClose, onSubmit }) => {
-  const [logoPreview, setLogoPreview] = useState(null);
-  const [logoFile, setLogoFile]       = useState(null);
-  const [dragOver, setDragOver]       = useState(false);
-  const [isLoading, setIsLoading]     = useState(false);
+const RegisterModal = ({ onClose, onSubmit, initialData = null }) => {
+  const [logoPreview, setLogoPreview] = useState(initialData?.logo || initialData?.logoPreview || null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleLogoChange = (file) => {
@@ -28,14 +31,66 @@ const RegisterModal = ({ onClose, onSubmit }) => {
     if (file) handleLogoChange(file);
   };
 
+  const uploadLogoToImageBB = async (file) => {
+    const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API;
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error('Logo upload failed.');
+    }
+
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error('Logo upload failed.');
+    }
+
+    return data.data.url;
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     const formData = new FormData(e.target);
-    if (logoFile) formData.set('company_logo', logoFile);
-    await new Promise(r => setTimeout(r, 900));
     const data = Object.fromEntries(formData.entries());
-    onSubmit({ ...data, logoPreview });
+    delete data.company_logo;
+
+    let logoUrl = initialData?.logo || logoPreview || null;
+
+    try {
+      if (logoFile) {
+        logoUrl = await uploadLogoToImageBB(logoFile);
+      }
+    } catch (error) {
+      console.error('Logo upload error:', error);
+      setIsLoading(false);
+      return;
+    }
+
+    await new Promise(r => setTimeout(r, 900));
+
+    const payload = {
+      ...data,
+      logo: logoUrl,
+      status: initialData?.status || 'pending',
+    };
+
+    try {
+      const result = await createCompany(payload);
+      onSubmit(result);
+      if (result.insertedId) {
+        toast.success('Company registered successfully!');
+      }
+    } catch (error) {
+      console.error('Company creation error:', error);
+    }
+
     setIsLoading(false);
   };
 
@@ -115,10 +170,10 @@ const RegisterModal = ({ onClose, onSubmit }) => {
         }}>
           <div>
             <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600, color: T.text1, letterSpacing: '-0.01em' }}>
-              Register New Company
+              {initialData ? 'Edit Company Details' : 'Register New Company'}
             </h2>
             <p style={{ margin: '3px 0 0', fontSize: 12, color: T.text3 }}>
-              Enter your business details to start hiring on HireLoop.
+              {initialData ? 'Update your business profile and logo.' : 'Enter your business details to start hiring on HireLoop.'}
             </p>
           </div>
           <button
@@ -146,11 +201,11 @@ const RegisterModal = ({ onClose, onSubmit }) => {
             <div className="modal-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <label style={labelStyle}>Company Name</label>
-                <input name="company_name" required placeholder="e.g. Acme Corp" className="modal-input" style={inputStyle} />
+                <input name="company_name" required placeholder="e.g. Acme Corp" className="modal-input" style={inputStyle} defaultValue={initialData?.company_name || ''} />
               </div>
               <div>
                 <label style={labelStyle}>Industry / Category</label>
-                <select name="industry" required className="modal-input" style={selectStyle}>
+                <select name="industry" required className="modal-input" style={selectStyle} defaultValue={initialData?.industry || ''}>
                   <option value="">Select industry</option>
                   <option value="technology">Technology</option>
                   <option value="finance">Finance</option>
@@ -180,7 +235,7 @@ const RegisterModal = ({ onClose, onSubmit }) => {
                   }}>
                     https://
                   </span>
-                  <input name="website_url" placeholder="www.company.com" className="modal-input" style={{ ...inputStyle, paddingLeft: 88 }} />
+                  <input name="website_url" placeholder="www.company.com" className="modal-input" style={{ ...inputStyle, paddingLeft: 88 }} defaultValue={initialData?.website_url || ''} />
                 </div>
               </div>
               <div>
@@ -189,7 +244,7 @@ const RegisterModal = ({ onClose, onSubmit }) => {
                   <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: T.text3, pointerEvents: 'none' }}>
                     <MapPinIcon />
                   </span>
-                  <input name="location" required placeholder="City, Country" className="modal-input" style={{ ...inputStyle, paddingLeft: 36 }} />
+                  <input name="location" required placeholder="City, Country" className="modal-input" style={{ ...inputStyle, paddingLeft: 36 }} defaultValue={initialData?.location || ''} />
                 </div>
               </div>
             </div>
@@ -198,7 +253,7 @@ const RegisterModal = ({ onClose, onSubmit }) => {
             <div className="modal-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'start' }}>
               <div>
                 <label style={labelStyle}>Employee Count Range</label>
-                <select name="employee_count" required className="modal-input" style={selectStyle}>
+                <select name="employee_count" required className="modal-input" style={selectStyle} defaultValue={initialData?.employee_count || ''}>
                   <option value="">Select range</option>
                   <option value="1-10">1–10 employees</option>
                   <option value="11-50">11–50 employees</option>
@@ -223,12 +278,13 @@ const RegisterModal = ({ onClose, onSubmit }) => {
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s',
                       overflow: 'hidden',
+                      position: 'relative',
                     }}
-                    onMouseEnter={e => { if (!logoPreview) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}}
-                    onMouseLeave={e => { if (!logoPreview) { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}}
+                    onMouseEnter={e => { if (!logoPreview) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; } }}
+                    onMouseLeave={e => { if (!logoPreview) { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; } }}
                   >
                     {logoPreview
-                      ? <img src={logoPreview} alt="Logo preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ? <Image src={logoPreview} alt="Logo preview" fill style={{ objectFit: 'cover' }} />
                       : <span style={{ color: T.text3 }}><UploadIcon /></span>
                     }
                   </div>
@@ -260,6 +316,7 @@ const RegisterModal = ({ onClose, onSubmit }) => {
                 placeholder="Tell us about your company's mission and culture..."
                 className="modal-input"
                 style={{ ...inputStyle, minHeight: 100, resize: 'none', lineHeight: 1.6 }}
+                defaultValue={initialData?.description || ''}
               />
             </div>
 
@@ -305,7 +362,7 @@ const RegisterModal = ({ onClose, onSubmit }) => {
                   <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round" />
                 </svg>
               )}
-              {isLoading ? 'Registering…' : 'Register Company'}
+              {isLoading ? (initialData ? 'Saving…' : 'Registering…') : (initialData ? 'Save Changes' : 'Register Company')}
             </button>
           </div>
         </form>
