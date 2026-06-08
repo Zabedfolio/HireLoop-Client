@@ -14,11 +14,11 @@ const NewJob = ({ company }) => {
     const [isRemote, setIsRemote] = useState(false);
     const [location, setLocation] = useState('');
 
-    const [mockCompany] = useState({
-        name: "Acme Corp (Auto-filled)",
-        id: "company_123",
-        isApproved: true,
-    });
+    // const [company] = useState({
+    //     name: "Acme Corp (Auto-filled)",
+    //     id: "company_123",
+    //     isApproved: true,
+    // });
 
     const validateSalary = (min, max) => {
         if (min && max && Number(max) <= Number(min)) {
@@ -45,12 +45,15 @@ const NewJob = ({ company }) => {
 
         const jobPayload = {
             ...data,
-            companyId: mockCompany.id,
+            companyId: company._id,
+            companyName: company.company_name,
+            companyLogo: company.logo,
             status: 'active',
             isPubliclyVisible: true,
         };
 
         const res = await createJob(jobPayload);
+
         if(res.insertedId) {
             toast.success('Job posted successfully!');
             e.target.reset();
