@@ -147,9 +147,9 @@ function JobCard({ job, index }) {
                     )}
                 </div>
 
-                {/* Apply Now */}
-                <div className="mt-6 pt-4 border-t border-white/[0.07]">
-                    <Link href={`/jobs/${jobId}`}>
+                {/* Apply Now + dates */}
+                <div className="mt-6 pt-4 border-t border-white/[0.07] flex items-center justify-between gap-3">
+                    <Link href={`/browse-jobs/${jobId}`}>
                         <motion.div
                             className="inline-flex items-center gap-2 text-sm font-medium text-white/70 group-hover:text-white transition-colors duration-200"
                             whileHover={{ x: 3 }}
@@ -159,6 +159,23 @@ function JobCard({ job, index }) {
                             <ArrowRight width={14} height={14} className="text-[#7B6FFF]" />
                         </motion.div>
                     </Link>
+
+                    <div className="flex flex-col items-end gap-0.5 text-[11px] leading-tight text-white/25 shrink-0">
+                        {job.createAt?.$date && (
+                            <span>
+                                Posted {new Date(job.createAt.$date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </span>
+                        )}
+                        {job.deadline && (
+                            <span className={
+                                new Date(job.deadline) - new Date() < 7 * 24 * 60 * 60 * 1000
+                                    ? 'text-rose-400/70'
+                                    : 'text-white/25'
+                            }>
+                                Deadline {new Date(job.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
         </motion.div>
