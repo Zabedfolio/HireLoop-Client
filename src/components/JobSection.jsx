@@ -2,70 +2,54 @@
 
 import { motion } from 'motion/react';
 import { MapPin, ArrowRight } from '@gravity-ui/icons';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { getAllJobs } from '@/lib/api/jobs';
 
 const ease = [0.22, 1, 0.36, 1];
 
-const jobs = [
-    {
-        id: 1,
-        title: 'Frontend Developer',
-        description: 'Showcase your commitment to diversity and inclusion by highlighting initiatives',
-        location: 'New York, USA',
-        type: 'Hybrid',
-        salary: '€25–€40/hour',
-    },
-    {
-        id: 2,
-        title: 'Product Designer',
-        description: 'Lead end-to-end design processes and shape product direction with a cross-functional team',
-        location: 'San Francisco, USA',
-        type: 'Remote',
-        salary: '€30–€55/hour',
-    },
-    {
-        id: 3,
-        title: 'AI Engineer',
-        description: 'Build and deploy cutting-edge ML models that power next-generation user experiences',
-        location: 'Berlin, Germany',
-        type: 'On-site',
-        salary: '€40–€70/hour',
-    },
-    {
-        id: 4,
-        title: 'DevOps Engineer',
-        description: 'Maintain and scale distributed cloud infrastructure for millions of daily active users',
-        location: 'London, UK',
-        type: 'Hybrid',
-        salary: '€35–€60/hour',
-    },
-    {
-        id: 5,
-        title: 'Backend Developer',
-        description: 'Design and build high-performance APIs and microservices serving global traffic',
-        location: 'Amsterdam, NL',
-        type: 'Remote',
-        salary: '€28–€50/hour',
-    },
-    {
-        id: 6,
-        title: 'Data Scientist',
-        description: 'Transform complex datasets into actionable insights that drive strategic decisions',
-        location: 'Toronto, Canada',
-        type: 'Hybrid',
-        salary: '€32–€58/hour',
-    },
-];
-
 const typeBadgeColors = {
-    Hybrid: 'bg-[#5B4DFF]/20 text-[#A99CFF] border-[#5B4DFF]/25',
-    Remote: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-    'On-site': 'bg-amber-500/15 text-amber-400 border-amber-500/25',
+    Hybrid:       'bg-[#5B4DFF]/20 text-[#A99CFF] border-[#5B4DFF]/25',
+    Remote:       'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+    'On-site':    'bg-amber-500/15 text-amber-400 border-amber-500/25',
+    'Full-time':  'bg-sky-500/15 text-sky-400 border-sky-500/25',
+    'Contract':   'bg-rose-500/15 text-rose-400 border-rose-500/25',
+    'Freelance':  'bg-violet-500/15 text-violet-400 border-violet-500/25',
 };
+
+const normaliseType = (raw = '') => {
+    const s = raw.toLowerCase().replace(/[-_\s]+/g, '');
+    if (s === 'fulltime')  return 'Full-time';
+    if (s === 'contract')  return 'Contract';
+    if (s === 'freelance') return 'Freelance';
+    if (s === 'remote')    return 'Remote';
+    if (s === 'hybrid')    return 'Hybrid';
+    if (s === 'onsite')    return 'On-site';
+    return raw.charAt(0).toUpperCase() + raw.slice(1);
+};
+
+const formatSalary = (min, max, currency = 'USD') => {
+    const fmt = (n) => {
+        const num = parseInt(n, 10);
+        if (isNaN(num)) return null;
+        return num >= 1000 ? `${Math.round(num / 1000)}k` : `${num}`;
+    };
+    const symbol = currency === 'BDT' ? '৳' : '$';
+    const fMin = fmt(min);
+    const fMax = fmt(max);
+    if (!fMin && !fMax) return null;
+    if (!fMin) return `${symbol}${fMax}`;
+    if (!fMax) return `${symbol}${fMin}`;
+    return `${symbol}${fMin} – ${symbol}${fMax}`;
+};
+
+// ─── Icons ────────────────────────────────────────────────────────────────
 
 const SalaryIcon = () => (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2" />
-        <path d="M7 4v6M5.5 8.5c0 .828.672 1 1.5 1s1.5-.448 1.5-1-.672-1-1.5-1-1.5-.448-1.5-1 .672-1 1.5-1 1.5.172 1.5 1" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+        <path d="M7 4v6M5.5 8.5c0 .828.672 1 1.5 1s1.5-.448 1.5-1-.672-1-1.5-1-1.5-.448-1.5-1 .672-1 1.5-1 1.5.172 1.5 1"
+              stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
     </svg>
 );
 
@@ -76,18 +60,35 @@ const WorkTypeIcon = () => (
     </svg>
 );
 
+// ─── Skeleton ─────────────────────────────────────────────────────────────
+
+const SkeletonCard = () => (
+    <div className="relative overflow-hidden rounded-[20px] border border-white/10 bg-gradient-to-b from-[#0F0F0F] to-[#1A1A1A] p-6 animate-pulse">
+        <div className="h-5 w-2/5 rounded-md bg-white/10 mb-3" />
+        <div className="h-3 w-4/5 rounded bg-white/[0.06] mb-1.5" />
+        <div className="h-3 w-3/5 rounded bg-white/[0.06] mb-5" />
+        <div className="flex gap-2">
+            <div className="h-7 w-24 rounded-full bg-white/[0.06]" />
+            <div className="h-7 w-20 rounded-full bg-white/[0.06]" />
+        </div>
+        <div className="mt-6 pt-4 border-t border-white/[0.07] h-4 w-20 rounded bg-white/[0.06]" />
+    </div>
+);
+
+// ─── Job Card ─────────────────────────────────────────────────────────────
+
 function JobCard({ job, index }) {
+    const typeLabel  = normaliseType(job.job_type ?? '');
+    const badgeClass = typeBadgeColors[typeLabel] ?? 'bg-white/10 text-white/60 border-white/10';
+    const salary     = formatSalary(job.min_salary, job.max_salary, job.currency);
+    const jobId      = job._id?.$oid ?? job._id ?? 'unknown';
+
     return (
         <motion.div
             className="group relative overflow-hidden rounded-[20px] border border-white/10 bg-gradient-to-b from-[#0F0F0F] to-[#1A1A1A] p-6 cursor-pointer"
             variants={{
-                hidden: { opacity: 0, y: 40, scale: 0.95 },
-                visible: {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    transition: { duration: 0.65, ease },
-                },
+                hidden:  { opacity: 0, y: 40, scale: 0.95 },
+                visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.65, ease } },
             }}
             whileHover={{
                 y: -6,
@@ -109,51 +110,85 @@ function JobCard({ job, index }) {
             <div className="relative z-10 flex flex-col h-full">
                 {/* Title */}
                 <h3 className="text-xl font-semibold text-white leading-snug">
-                    {job.title}
+                    {job.job_title}
                 </h3>
+
+                {/* Company name */}
+                {job.companyName && (
+                    <p className="mt-1 text-xs font-medium text-white/35">{job.companyName}</p>
+                )}
 
                 {/* Description */}
                 <p className="mt-2 text-sm leading-relaxed text-white/45 line-clamp-2">
-                    {job.description}
+                    {job.job_description ?? job.description ?? job.requirements ?? ''}
                 </p>
 
                 {/* Tags */}
                 <div className="mt-5 flex flex-wrap gap-2">
-                    {/* Location */}
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/60">
-                        <MapPin width={12} height={12} />
-                        {job.location}
-                    </span>
+                    {job.location && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/60">
+                            <MapPin width={12} height={12} />
+                            {job.location}
+                        </span>
+                    )}
 
-                    {/* Work Type */}
-                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs ${typeBadgeColors[job.type]}`}>
-                        <WorkTypeIcon />
-                        {job.type}
-                    </span>
+                    {typeLabel && (
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs ${badgeClass}`}>
+                            <WorkTypeIcon />
+                            {typeLabel}
+                        </span>
+                    )}
 
+                    {salary && (
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/60">
                             <SalaryIcon />
-                            {job.salary}
+                            {salary}
                         </span>
+                    )}
                 </div>
 
                 {/* Apply Now */}
                 <div className="mt-6 pt-4 border-t border-white/[0.07]">
-                    <motion.div
-                        className="inline-flex items-center gap-2 text-sm font-medium text-white/70 group-hover:text-white transition-colors duration-200"
-                        whileHover={{ x: 3 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    >
-                        Apply Now
-                        <ArrowRight width={14} height={14} className="text-[#7B6FFF]" />
-                    </motion.div>
+                    <Link href={`/jobs/${jobId}`}>
+                        <motion.div
+                            className="inline-flex items-center gap-2 text-sm font-medium text-white/70 group-hover:text-white transition-colors duration-200"
+                            whileHover={{ x: 3 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        >
+                            Apply Now
+                            <ArrowRight width={14} height={14} className="text-[#7B6FFF]" />
+                        </motion.div>
+                    </Link>
                 </div>
             </div>
         </motion.div>
     );
 }
 
+// ─── Section ──────────────────────────────────────────────────────────────
+
 export default function JobsSection() {
+    const [jobs, setJobs]       = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError]     = useState(null);
+
+    useEffect(() => {
+        const fetchJobs = async () => {
+            try {
+                setLoading(true);
+                const data = await getAllJobs();
+                const list = Array.isArray(data) ? data : (data?.jobs ?? []);
+                setJobs(list.slice(0, 6)); // cap at 6 for the landing section
+            } catch (err) {
+                console.error('JobsSection fetch error:', err);
+                setError(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchJobs();
+    }, []);
+
     return (
         <section className="relative overflow-hidden bg-black py-20 md:py-28">
 
@@ -182,7 +217,7 @@ export default function JobsSection() {
                     whileInView="visible"
                     viewport={{ once: true, margin: '-60px' }}
                     variants={{
-                        hidden: {},
+                        hidden:  {},
                         visible: { transition: { staggerChildren: 0.12, delayChildren: 0 } },
                     }}
                 >
@@ -190,7 +225,7 @@ export default function JobsSection() {
                     <motion.div
                         className="inline-flex items-center gap-2.5 mb-6"
                         variants={{
-                            hidden: { opacity: 0, y: 16 },
+                            hidden:  { opacity: 0, y: 16 },
                             visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
                         }}
                     >
@@ -205,7 +240,7 @@ export default function JobsSection() {
                     <motion.h2
                         className="mx-auto max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl"
                         variants={{
-                            hidden: { opacity: 0, y: 22 },
+                            hidden:  { opacity: 0, y: 22 },
                             visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
                         }}
                     >
@@ -216,22 +251,30 @@ export default function JobsSection() {
                 </motion.div>
 
                 {/* Cards Grid */}
-                <motion.div
-                    className="mt-14 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 md:mt-16"
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-80px' }}
-                    variants={{
-                        hidden: {},
-                        visible: {
-                            transition: { staggerChildren: 0.1, delayChildren: 0.05 },
-                        },
-                    }}
-                >
-                    {jobs.map((job, index) => (
-                        <JobCard key={job.id} job={job} index={index} />
-                    ))}
-                </motion.div>
+                {loading ? (
+                    <div className="mt-14 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 md:mt-16">
+                        {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+                    </div>
+                ) : error ? (
+                    <p className="mt-14 text-center text-white/40 text-sm">
+                        Could not load jobs right now.
+                    </p>
+                ) : (
+                    <motion.div
+                        className="mt-14 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 md:mt-16"
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: '-80px' }}
+                        variants={{
+                            hidden:  {},
+                            visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+                        }}
+                    >
+                        {jobs.map((job, index) => (
+                            <JobCard key={job._id?.$oid ?? job._id ?? index} job={job} index={index} />
+                        ))}
+                    </motion.div>
+                )}
 
                 {/* CTA Button */}
                 <motion.div
@@ -241,26 +284,28 @@ export default function JobsSection() {
                     viewport={{ once: true, margin: '-40px' }}
                     transition={{ duration: 0.65, ease }}
                 >
-                    <motion.button
-                        className="relative inline-flex items-center gap-2.5 overflow-hidden rounded-full border border-white/20 bg-white/[0.05] px-8 py-3.5 text-sm font-medium text-white backdrop-blur-xl"
-                        whileHover={{
-                            backgroundColor: 'rgba(255,255,255,0.1)',
-                            borderColor: 'rgba(107,92,255,0.5)',
-                            scale: 1.02,
-                            transition: { duration: 0.2 },
-                        }}
-                        whileTap={{ scale: 0.97 }}
-                    >
-                        {/* Button glow on hover */}
-                        <motion.span
-                            className="absolute inset-0 bg-[#5B4DFF]/10 blur-xl"
-                            initial={{ opacity: 0 }}
-                            whileHover={{ opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                        />
-                        <span className="relative">View all job open</span>
-                        <ArrowRight width={15} height={15} className="relative text-[#7B6FFF]" />
-                    </motion.button>
+                    <Link href="/browse-jobs">
+                        <motion.div
+                            className="relative inline-flex items-center gap-2.5 overflow-hidden rounded-full border border-white/20 bg-white/[0.05] px-8 py-3.5 text-sm font-medium text-white backdrop-blur-xl cursor-pointer"
+                            whileHover={{
+                                backgroundColor: 'rgba(255,255,255,0.1)',
+                                borderColor: 'rgba(107,92,255,0.5)',
+                                scale: 1.02,
+                                transition: { duration: 0.2 },
+                            }}
+                            whileTap={{ scale: 0.97 }}
+                        >
+                            {/* Button glow on hover */}
+                            <motion.span
+                                className="absolute inset-0 bg-[#5B4DFF]/10 blur-xl"
+                                initial={{ opacity: 0 }}
+                                whileHover={{ opacity: 1 }}
+                                transition={{ duration: 0.3 }}
+                            />
+                            <span className="relative">View all open jobs</span>
+                            <ArrowRight width={15} height={15} className="relative text-[#7B6FFF]" />
+                        </motion.div>
+                    </Link>
                 </motion.div>
 
             </div>
