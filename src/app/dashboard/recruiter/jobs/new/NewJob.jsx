@@ -2,17 +2,32 @@
 
 import { createJob } from '@/lib/actions/job';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const NewJob = ({ company }) => {
-
-
-    console.log('Company data received in NewJob component:', company);
-
     const [salaryError, setSalaryError] = useState('');
     const [isRemote, setIsRemote] = useState(false);
     const [location, setLocation] = useState('');
+
+    if (!company?._id) {
+        return (
+            <div className="min-h-screen text-white flex flex-col items-center justify-center px-4 py-10">
+                <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-[#0B0B0C] p-10 text-center">
+                    <h1 className="text-2xl font-semibold mb-4">Company profile required</h1>
+                    <p className="text-sm text-white/60 mb-6">
+                        You need to register a company before posting a job. Please add your company details first.
+                    </p>
+                    <Link href="/dashboard/recruiter/company" className="inline-flex items-center justify-center rounded-xl bg-[#5B4DFF] px-6 py-3 text-sm font-semibold text-white hover:bg-[#4339d7] transition">
+                        Go to My Company
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    console.log('Company data received in NewJob component:', company);
 
     // const [company] = useState({
     //     name: "Acme Corp (Auto-filled)",

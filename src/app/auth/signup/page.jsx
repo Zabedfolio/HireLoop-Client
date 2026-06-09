@@ -102,10 +102,17 @@ export default function SignUpPage() {
         return;
     }
 
+    const normalizedEmail = formData.email.trim().toLowerCase();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(normalizedEmail)) {
+        alert('Please enter a valid email address');
+        return;
+    }
+
     try {
         setLoading(true);
         const result = await signUp.email({
-            email: formData.email,
+            email: normalizedEmail,
             password: formData.password,
             name: formData.name,
             role: formData.role,
@@ -115,8 +122,10 @@ export default function SignUpPage() {
 
         if (result?.error) {
             const message = result.error.message?.toLowerCase() || '';
-            if (message.includes('email') || message.includes('already') || message.includes('exist')) {
+            if (message.includes('already') || message.includes('exist') || message.includes('duplicate') || message.includes('taken')) {
                 toast.error('An account with this email already exists');
+            } else if (message.includes('invalid') && message.includes('email')) {
+                toast.error('Please enter a valid email address');
             } else {
                 toast.error(result.error.message || 'Signup failed');
             }
@@ -127,8 +136,10 @@ export default function SignUpPage() {
     } catch (error) {
         console.error(error);
         const message = error?.message?.toLowerCase() || '';
-        if (message.includes('email') || message.includes('already') || message.includes('exist')) {
+        if (message.includes('already') || message.includes('exist') || message.includes('duplicate') || message.includes('taken')) {
             toast.error('An account with this email already exists');
+        } else if (message.includes('invalid') && message.includes('email')) {
+            toast.error('Please enter a valid email address');
         } else {
             toast.error(error?.message || 'Signup failed');
         }

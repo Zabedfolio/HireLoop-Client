@@ -3,12 +3,32 @@
 
 const baseurl = process.env.NEXT_PUBLIC_BASE_URL;
 
-
-export const serverFetch= async (path) => {
+export const serverFetch = async (path) => {
     const res = await fetch(`${baseurl}${path}`);
-    return res.json();
-}
+    const text = await res.text();
 
+    if (!res.ok) {
+        if (!text) {
+            return null;
+        }
+        try {
+            return JSON.parse(text);
+        } catch {
+            return null;
+        }
+    }
+
+    if (!text) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        console.error('serverFetch JSON parse error:', error, text);
+        return null;
+    }
+};
 
 export const serverMutation = async (path, data) => {
     const res = await fetch(`${baseurl}${path}`, {
@@ -19,8 +39,14 @@ export const serverMutation = async (path, data) => {
         body: JSON.stringify(data),
     });
 
-
-    // handle 401,404,
-
-    return res.json();
+    const text = await res.text();
+    if (!text) {
+        return null;
+    }
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        console.error('serverMutation JSON parse error:', error, text);
+        return null;
+    }
 };

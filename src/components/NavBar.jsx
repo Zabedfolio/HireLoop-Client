@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@heroui/react";
 import { useSession, authClient } from "@/lib/auth-client";
@@ -124,8 +125,14 @@ function UserMenu({ user }) {
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
   const { data: session, isPending } = useSession();
   const user = session?.user;
+
+  const isActiveLink = (href) => {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <nav className="w-full">
@@ -150,7 +157,11 @@ export default function NavBar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-gray-300 hover:text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                className={`text-sm font-medium px-4 py-1.5 rounded-lg transition-colors duration-200 ${
+                  isActiveLink(link.href)
+                    ? "bg-white/10 text-white"
+                    : "text-gray-300 hover:text-white hover:bg-white/5"
+                }`}
               >
                 {link.label}
               </Link>
@@ -205,7 +216,11 @@ export default function NavBar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="text-gray-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  isActiveLink(link.href)
+                    ? "bg-white/10 text-white"
+                    : "text-gray-300 hover:text-white hover:bg-white/5"
+                }`}
               >
                 {link.label}
               </Link>
