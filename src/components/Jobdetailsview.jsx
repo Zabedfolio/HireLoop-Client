@@ -16,9 +16,9 @@ import {
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 const statTheme = {
-  salary:   { icon: "#4ade80", label: "#4ade80", bg: "rgba(74,222,128,0.07)",  border: "rgba(74,222,128,0.20)"  },
-  location: { icon: "#60a5fa", label: "#60a5fa", bg: "rgba(96,165,250,0.07)",  border: "rgba(96,165,250,0.20)"  },
-  jobtype:  { icon: "#f87171", label: "#f87171", bg: "rgba(248,113,113,0.07)", border: "rgba(248,113,113,0.20)" },
+  salary: { icon: "#4ade80", label: "#4ade80", bg: "rgba(74,222,128,0.07)", border: "rgba(74,222,128,0.20)" },
+  location: { icon: "#60a5fa", label: "#60a5fa", bg: "rgba(96,165,250,0.07)", border: "rgba(96,165,250,0.20)" },
+  jobtype: { icon: "#f87171", label: "#f87171", bg: "rgba(248,113,113,0.07)", border: "rgba(248,113,113,0.20)" },
   category: { icon: "#c084fc", label: "#c084fc", bg: "rgba(192,132,252,0.07)", border: "rgba(192,132,252,0.20)" },
 };
 
@@ -67,16 +67,16 @@ const JobDetailsView = ({ job }) => {
   };
   const salaryDisplay =
     min_salary && max_salary ? `${fmt(min_salary)} – ${fmt(max_salary)}`
-    : min_salary ? `From ${fmt(min_salary)}`
-    : max_salary ? `Up to ${fmt(max_salary)}`
-    : null;
+      : min_salary ? `From ${fmt(min_salary)}`
+        : max_salary ? `Up to ${fmt(max_salary)}`
+          : null;
 
   // Parse text
   const parseField = (str) =>
     str ? str.split(/(?<=\.)\s+/).map((s) => s.trim().replace(/\.$/, "").trim()).filter((s) => s.length > 2) : [];
 
   const responsibilityItems = parseField(responsibilities);
-  const requirementItems    = parseField(requirements);
+  const requirementItems = parseField(requirements);
 
   // Benefits
   const benefitsList = benefits
@@ -84,22 +84,22 @@ const JobDetailsView = ({ job }) => {
     : [];
 
   const benefitIconMap = [
-    [/(health|medical|dental|vision)/i,              Heart],
-    [/(stock|rsu|equity|share)/i,                    ChartBar],
-    [/(hardware|equipment|device|laptop|stipend)/i,  Display],
-    [/(pto|vacation|leave|time.?off)/i,              Suitcase],
-    [/(remote|work.?from)/i,                         Geo],
-    [/(401k|retirement|pension)/i,                   CircleDollar],
-    [/(uber|credit|cash|membership|subscription)/i,  Tag],
+    [/(health|medical|dental|vision)/i, Heart],
+    [/(stock|rsu|equity|share)/i, ChartBar],
+    [/(hardware|equipment|device|laptop|stipend)/i, Display],
+    [/(pto|vacation|leave|time.?off)/i, Suitcase],
+    [/(remote|work.?from)/i, Geo],
+    [/(401k|retirement|pension)/i, CircleDollar],
+    [/(uber|credit|cash|membership|subscription)/i, Tag],
   ];
   const getBenefitIcon = (text) => {
     for (const [re, Icon] of benefitIconMap) if (re.test(text)) return Icon;
     return CircleCheck;
   };
 
-  const formatJobType  = (t) => t ? t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null;
+  const formatJobType = (t) => t ? t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null;
   const formatCategory = (c) => c ? c.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null;
-  const formatDate     = (d) => {
+  const formatDate = (d) => {
     if (!d) return null;
     try { return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
     catch { return d; }
@@ -342,7 +342,7 @@ const JobDetailsView = ({ job }) => {
                   <button className="jd-btn-bookmark" aria-label="Save job">
                     <Bookmark width={16} height={16} />
                   </button>
-                  <Link className="jd-btn-apply" href={`/jobs/${_id}/apply`}>
+                  <Link className="jd-btn-apply" href={`/browse-jobs/${_id}/apply`}>
                     Apply Now
                   </Link>
                 </div>
