@@ -35,24 +35,26 @@ import {
 } from '@heroui/react';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
+import { submitApplication } from '@/lib/actions/applications';
+import toast from 'react-hot-toast';
 
 /* ─────────────────────────────────────────
    Static data
 ───────────────────────────────────────── */
 const EXPERIENCE_LEVELS = [
-    { id: 'entry',  label: 'Entry Level (0–1 years)' },
+    { id: 'entry', label: 'Entry Level (0–1 years)' },
     { id: 'junior', label: 'Junior (1–3 years)' },
-    { id: 'mid',    label: 'Mid Level (3–5 years)' },
+    { id: 'mid', label: 'Mid Level (3–5 years)' },
     { id: 'senior', label: 'Senior (5–8 years)' },
-    { id: 'lead',   label: 'Lead / Principal (8+ years)' },
+    { id: 'lead', label: 'Lead / Principal (8+ years)' },
 ];
 
 const NOTICE_PERIODS = [
     { id: 'immediately', label: 'Immediately' },
-    { id: '2weeks',      label: '2 Weeks' },
-    { id: '1month',      label: '1 Month' },
-    { id: '2months',     label: '2 Months' },
-    { id: '3months',     label: '3+ Months' },
+    { id: '2weeks', label: '2 Weeks' },
+    { id: '1month', label: '1 Month' },
+    { id: '2months', label: '2 Months' },
+    { id: '3months', label: '3+ Months' },
 ];
 
 const WORK_TYPES = [
@@ -71,7 +73,7 @@ const inputCls =
     'transition-all duration-200 w-full';
 
 const labelCls = 'block text-xs font-medium text-white/50 mb-1.5';
-const errCls   = 'text-xs text-red-400 mt-1.5 flex items-center gap-1';
+const errCls = 'text-xs text-red-400 mt-1.5 flex items-center gap-1';
 
 /* ─────────────────────────────────────────
    Main component
@@ -80,21 +82,21 @@ export default function JobApply({ job, applicant }) {
     const fileInputRef = useRef(null);
 
     const [resumeFile, setResumeFile] = useState(null);
-    const [dragOver,   setDragOver]   = useState(false);
-    const [submitted,  setSubmitted]  = useState(false);
-    const [errors,     setErrors]     = useState({});
+    const [dragOver, setDragOver] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const [form, setForm] = useState({
-        fullName:       applicant?.name  ?? '',
-        email:          applicant?.email ?? '',
-        phone:          '',
-        location:       '',
-        experience:     '',
-        noticePeriod:   '',
-        preferredWork:  '',
-        portfolioUrl:   '',
-        linkedinUrl:    '',
-        coverLetter:    '',
+        fullName: applicant?.name ?? '',
+        email: applicant?.email ?? '',
+        phone: '',
+        location: '',
+        experience: '',
+        noticePeriod: '',
+        preferredWork: '',
+        portfolioUrl: '',
+        linkedinUrl: '',
+        coverLetter: '',
         expectedSalary: '',
     });
 
@@ -132,17 +134,17 @@ export default function JobApply({ job, applicant }) {
 
     const validate = () => {
         const next = {};
-        if (!form.fullName.trim())    next.fullName    = 'Full name is required.';
-        if (!form.email.trim())       next.email       = 'Email is required.';
-        if (!form.phone.trim())       next.phone       = 'Phone number is required.';
-        if (!form.experience)         next.experience  = 'Please select your experience level.';
-        if (!form.noticePeriod)       next.noticePeriod = 'Please select your notice period.';
-        if (!form.coverLetter.trim()) next.coverLetter  = 'A cover letter is required.';
-        if (!resumeFile)              next.resume       = 'Please upload your resume.';
+        if (!form.fullName.trim()) next.fullName = 'Full name is required.';
+        if (!form.email.trim()) next.email = 'Email is required.';
+        if (!form.phone.trim()) next.phone = 'Phone number is required.';
+        if (!form.experience) next.experience = 'Please select your experience level.';
+        if (!form.noticePeriod) next.noticePeriod = 'Please select your notice period.';
+        if (!form.coverLetter.trim()) next.coverLetter = 'A cover letter is required.';
+        if (!resumeFile) next.resume = 'Please upload your resume.';
         return next;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const errs = validate();
         if (Object.keys(errs).length) {
@@ -152,10 +154,9 @@ export default function JobApply({ job, applicant }) {
             return;
         }
 
-        // Build FormData from the form element (uses `name` attributes)
         const formData = new FormData(e.currentTarget);
 
-        // Ensure controlled-state values are reflected (in case of programmatic updates)
+        // Controlled form state values
         formData.set('fullName', form.fullName);
         formData.set('email', form.email);
         formData.set('phone', form.phone);
@@ -168,18 +169,28 @@ export default function JobApply({ job, applicant }) {
         formData.set('coverLetter', form.coverLetter);
         formData.set('expectedSalary', form.expectedSalary);
 
+        if (job) {
+            formData.set('jobId', job._id?.toString() ?? '');
+            formData.set('jobTitle', job.job_title ?? '');
+            formData.set('companyId', job.companyId ?? '');
+            formData.set('companyName', job.companyName ?? '');
+            formData.set('companyLogo', job.companyLogo ?? '');
+        }
+
         if (resumeFile) {
             formData.set('resume', resumeFile);
         }
 
-        // Convert to a plain object if needed for logging/inspection
         const payload = Object.fromEntries(formData.entries());
         console.log('Submitting application payload:', payload);
 
-        // TODO: wire up API call here, e.g.:
-        // await fetch('/api/applications', { method: 'POST', body: formData });
-
-        setSubmitted(true);
+        const res = await submitApplication(payload);
+        if (res.insertedId) {
+            toast.success('Application submitted successfully!');
+            setSubmitted(true);
+        } else {
+            toast.error('Failed to submit application. Please try again later.');
+        }
     };
 
     /* ── Success screen ───────────────────── */
@@ -654,7 +665,7 @@ export default function JobApply({ job, applicant }) {
                         <div className="flex flex-col sm:flex-row gap-3 pt-1">
                             <button
                                 type="submit"
-                                className="flex flex-1 h-[52px] items-center justify-center gap-2 rounded-[14px] bg-[#5B4DFF] text-sm font-medium text-white hover:bg-[#6D5FFF] hover:scale-[1.01] transition-all duration-300"
+                                className="flex w-full h-[52px] items-center justify-center gap-2 rounded-[14px] bg-[#5B4DFF] text-sm font-medium text-white hover:bg-[#6D5FFF] hover:scale-[1.01] transition-all duration-300"
                             >
                                 <BsRocket className="w-4 h-4" />
                                 Submit Application
@@ -675,9 +686,6 @@ export default function JobApply({ job, applicant }) {
     );
 }
 
-/* ─────────────────────────────────────────
-   Sub-components
-───────────────────────────────────────── */
 
 /** Glassmorphism section card */
 function SectionCard({ icon, title, subtitle, children }) {
@@ -759,9 +767,7 @@ function JobDetailBlock({ title, text, last }) {
     );
 }
 
-/* ─────────────────────────────────────────
-   Utility helpers
-───────────────────────────────────────── */
+
 
 /** Capitalize the first letter and replace underscores with spaces */
 function capitalize(str) {
