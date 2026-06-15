@@ -7,6 +7,7 @@ import { signIn } from '@/lib/auth-client';
 import { Briefcase, Lock, Eye, EyeSlash, At } from '@gravity-ui/icons';
 import toast from 'react-hot-toast';
 import { motion } from 'motion/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const GoogleIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24">
@@ -63,6 +64,10 @@ export default function SignInPage() {
     const [isVisible, setIsVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const router = useRouter()
+
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get('callbackUrl') || '/';
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -73,8 +78,12 @@ export default function SignInPage() {
         e.preventDefault();
         try {
             setLoading(true);
-            await signIn.email({ email: formData.email, password: formData.password, callbackURL: '/' });
+            await signIn.email({ 
+                email: formData.email, 
+                password: formData.password
+            });
             toast.success('Login successful');
+            router.push(redirectTo);
         } catch (error) {
             console.error(error);
             toast.error(error?.message || 'Login failed');
@@ -332,7 +341,7 @@ export default function SignInPage() {
                             transition={{ delay: 1.05, duration: 0.5 }}
                         >
                             Don&apos;t have an account?{' '}
-                            <Link href="/auth/signup" className="text-[#7B6FFF] hover:text-[#9B8FFF] transition-colors">
+                            <Link href={`/auth/signup?redirect=${redirectTo}`} className="text-[#7B6FFF] hover:text-[#9B8FFF] transition-colors">
                                 Sign up
                             </Link>
                         </motion.p>

@@ -8,6 +8,7 @@ import { Briefcase, Person, Lock, Eye, EyeSlash, At, Camera } from '@gravity-ui/
 import toast from 'react-hot-toast';
 import { motion } from 'motion/react';
 import { Radio, RadioGroup } from "@heroui/react";
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const GoogleIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24">
@@ -74,6 +75,10 @@ export default function SignUpPage() {
     const [agreed, setAgreed] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const router = useRouter()
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get('redirect') || '/';
+
     const [formData, setFormData] = useState({
         name: '',
         role: 'job_seeker',
@@ -116,8 +121,7 @@ export default function SignUpPage() {
             password: formData.password,
             name: formData.name,
             role: formData.role,
-            image: formData.image,
-            callbackURL: '/',
+            image: formData.image
         });
 
         if (result?.error) {
@@ -133,6 +137,7 @@ export default function SignUpPage() {
         }
 
         toast.success('Account created successfully');
+        router.push(redirectTo);
     } catch (error) {
         console.error(error);
         const message = error?.message?.toLowerCase() || '';
@@ -464,7 +469,7 @@ export default function SignUpPage() {
                             transition={{ delay: 1.2, duration: 0.5 }}
                         >
                             Already have an account?{' '}
-                            <Link href="/signin" className="text-[#7B6FFF] hover:text-[#9B8FFF] transition-colors">
+                            <Link href={`/auth/signin?redirect=${redirectTo}`} className="text-[#7B6FFF] hover:text-[#9B8FFF] transition-colors">
                                 Sign in
                             </Link>
                         </motion.p>
