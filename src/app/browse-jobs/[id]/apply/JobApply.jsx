@@ -37,6 +37,7 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { submitApplication } from '@/lib/actions/applications';
 import toast from 'react-hot-toast';
+import ApplicationLimitCard from '@/components/Applicationlimitcard';
 
 /* ─────────────────────────────────────────
    Static data
@@ -78,7 +79,7 @@ const errCls = 'text-xs text-red-400 mt-1.5 flex items-center gap-1';
 /* ─────────────────────────────────────────
    Main component
 ───────────────────────────────────────── */
-export default function JobApply({ job, applicant }) {
+export default function JobApply({ job, applicant, applications }) {
     const fileInputRef = useRef(null);
 
     const [resumeFile, setResumeFile] = useState(null);
@@ -145,55 +146,54 @@ export default function JobApply({ job, applicant }) {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const errs = validate();
-        if (Object.keys(errs).length) {
-            setErrors(errs);
-            const firstKey = Object.keys(errs)[0];
-            document.getElementById(`field-${firstKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-        }
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length) {
+        setErrors(errs);
+        const firstKey = Object.keys(errs)[0];
+        document.getElementById(`field-${firstKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
 
-        const formData = new FormData(e.currentTarget);
+    const formData = new FormData(e.currentTarget);
 
-        // Controlled form state values
-        formData.set('fullName', form.fullName);
-        formData.set('email', form.email);
-        formData.set('phone', form.phone);
-        formData.set('location', form.location);
-        formData.set('experience', form.experience);
-        formData.set('noticePeriod', form.noticePeriod);
-        formData.set('preferredWork', form.preferredWork);
-        formData.set('portfolioUrl', form.portfolioUrl);
-        formData.set('linkedinUrl', form.linkedinUrl);
-        formData.set('coverLetter', form.coverLetter);
-        formData.set('expectedSalary', form.expectedSalary);
+    formData.set('applicantId', applicant?.id ?? '');
+    formData.set('applicant_fullName', form.fullName);
+    formData.set('applicant_email', form.email);
+    formData.set('applicant_phone', form.phone);
+    formData.set('applicant_location', form.location);
+    formData.set('applicant_experience', form.experience);
+    formData.set('applicant_noticePeriod', form.noticePeriod);
+    formData.set('applicant_preferredWork', form.preferredWork);
+    formData.set('applicant_portfolioUrl', form.portfolioUrl);
+    formData.set('applicant_linkedinUrl', form.linkedinUrl);
+    formData.set('applicant_coverLetter', form.coverLetter);
+    formData.set('applicant_expectedSalary', form.expectedSalary);
 
-        if (job) {
-            formData.set('jobId', job._id?.toString() ?? '');
-            formData.set('jobTitle', job.job_title ?? '');
-            formData.set('companyId', job.companyId ?? '');
-            formData.set('companyName', job.companyName ?? '');
-            formData.set('companyLogo', job.companyLogo ?? '');
-        }
+    if (job) {
+        formData.set('jobId', job._id?.toString() ?? '');
+        formData.set('jobTitle', job.job_title ?? '');
+        formData.set('companyId', job.companyId ?? '');
+        formData.set('companyName', job.companyName ?? '');
+        formData.set('companyLogo', job.companyLogo ?? '');
+    }
 
-        if (resumeFile) {
-            formData.set('resume', resumeFile);
-        }
+    if (resumeFile) {
+        formData.set('resume', resumeFile);
+    }
 
-        const payload = Object.fromEntries(formData.entries());
-        console.log('Submitting application payload:', payload);
+    const payload = Object.fromEntries(formData.entries());
+    console.log('Submitting application payload:', payload);
 
-        const res = await submitApplication(payload);
-        if (res.insertedId) {
-            toast.success('Application submitted successfully!');
-            setSubmitted(true);
-        } else {
-            toast.error('Failed to submit application. Please try again later.');
-        }
-    };
+    const res = await submitApplication(payload);
+    if (res.insertedId) {
+        toast.success('Application submitted successfully!');
+        setSubmitted(true);
+    } else {
+        toast.error('Failed to submit application. Please try again later.');
+    }
+};
 
-    /* ── Success screen ───────────────────── */
     if (submitted) {
         return (
             <section className="relative min-h-screen overflow-hidden bg-[#090909] flex items-center justify-center">
@@ -236,6 +236,8 @@ export default function JobApply({ job, applicant }) {
             <div className="absolute top-28 right-[12%] w-1.5 h-1.5 rounded-full bg-[#6D5FFF] shadow-[0_0_22px_7px_rgba(109,95,255,0.5)]" />
 
             <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 py-12 sm:py-16">
+
+                <ApplicationLimitCard applications={applications} />
 
                 {/* Back link */}
                 <Link
@@ -357,7 +359,6 @@ export default function JobApply({ job, applicant }) {
                                         <BsPerson className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none" />
                                         <input
                                             id="fullName"
-                                            name="fullName"
                                             type="text"
                                             placeholder="Zabed Mahmud"
                                             value={form.fullName}
@@ -375,7 +376,6 @@ export default function JobApply({ job, applicant }) {
                                         <BsEnvelopeFill className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none" />
                                         <input
                                             id="email"
-                                            name="email"
                                             type="email"
                                             placeholder="you@email.com"
                                             value={form.email}
@@ -393,7 +393,6 @@ export default function JobApply({ job, applicant }) {
                                         <BsTelephone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none" />
                                         <input
                                             id="phone"
-                                            name="phone"
                                             type="tel"
                                             placeholder="+880 1XXXXXXXXX"
                                             value={form.phone}
@@ -411,7 +410,6 @@ export default function JobApply({ job, applicant }) {
                                         <BsGeoAlt className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none" />
                                         <input
                                             id="location"
-                                            name="location"
                                             type="text"
                                             placeholder="Dhaka, Bangladesh"
                                             value={form.location}
@@ -436,7 +434,6 @@ export default function JobApply({ job, applicant }) {
                                 <div id="field-experience">
                                     <label className={labelCls}>Experience Level</label>
                                     <NativeSelect
-                                        name="experience"
                                         value={form.experience}
                                         onChange={set('experience')}
                                         hasError={!!errors.experience}
@@ -453,7 +450,6 @@ export default function JobApply({ job, applicant }) {
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/35 pointer-events-none">$</span>
                                         <input
                                             id="expectedSalary"
-                                            name="expectedSalary"
                                             type="text"
                                             placeholder="e.g. 60,000"
                                             value={form.expectedSalary}
@@ -467,7 +463,6 @@ export default function JobApply({ job, applicant }) {
                                 <div id="field-noticePeriod">
                                     <label className={labelCls}>Notice Period</label>
                                     <NativeSelect
-                                        name="noticePeriod"
                                         value={form.noticePeriod}
                                         onChange={set('noticePeriod')}
                                         hasError={!!errors.noticePeriod}
@@ -481,7 +476,6 @@ export default function JobApply({ job, applicant }) {
                                 <div>
                                     <label className={labelCls}>Preferred Work Type</label>
                                     <NativeSelect
-                                        name="preferredWork"
                                         value={form.preferredWork}
                                         onChange={set('preferredWork')}
                                         hasError={false}
@@ -507,7 +501,6 @@ export default function JobApply({ job, applicant }) {
                                         <BsLink45Deg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none" />
                                         <input
                                             id="portfolioUrl"
-                                            name="portfolioUrl"
                                             type="url"
                                             placeholder="https://yourportfolio.com"
                                             value={form.portfolioUrl}
@@ -523,7 +516,6 @@ export default function JobApply({ job, applicant }) {
                                         <BsLink45Deg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none" />
                                         <input
                                             id="linkedinUrl"
-                                            name="linkedinUrl"
                                             type="url"
                                             placeholder="https://linkedin.com/in/yourname"
                                             value={form.linkedinUrl}
@@ -546,7 +538,6 @@ export default function JobApply({ job, applicant }) {
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    name="resume"
                                     accept=".pdf,.doc,.docx"
                                     className="hidden"
                                     onChange={(e) => handleFile(e.target.files[0])}
@@ -623,7 +614,6 @@ export default function JobApply({ job, applicant }) {
                                 <label htmlFor="coverLetter" className={labelCls}>Cover Letter</label>
                                 <textarea
                                     id="coverLetter"
-                                    name="coverLetter"
                                     rows={7}
                                     placeholder="Introduce yourself, highlight relevant experience, and explain why you're excited about this role..."
                                     value={form.coverLetter}

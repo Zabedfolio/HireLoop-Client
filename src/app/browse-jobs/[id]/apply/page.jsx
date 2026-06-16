@@ -1,4 +1,6 @@
 import JobApply from '@/app/browse-jobs/[id]/apply/JobApply';
+import ApplicationLimitCard from '@/components/Applicationlimitcard';
+import { getApplicationsByApplicantId } from '@/lib/api/applications';
 import { getJobById } from '@/lib/api/jobs';
 import { getUserSession } from '@/lib/core/session';
 import { ArrowLeft, Lock, Person, ShieldCheck } from '@gravity-ui/icons';
@@ -103,6 +105,8 @@ const ApplyPage = async ({ params }) => {
         );
     }
 
+    const applications = await getApplicationsByApplicantId(user.id);
+
     const job = await getJobById(id);
 
     if (!job) {
@@ -131,7 +135,7 @@ const ApplyPage = async ({ params }) => {
 
     return (
         <div>
-            <JobApply applicant={user} job={job} />
+            <JobApply applicant={user} job={job} applications={applications} />
         </div>
     );
 };
