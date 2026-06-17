@@ -12,6 +12,7 @@ import {
 } from 'react-icons/bs';
 
 import { useState } from 'react';
+import PricingFAQ from '@/components/Pricingfaq';
 
 /* ─────────────────────────────────────────
    Static data — Job Seeker plans
@@ -195,9 +196,12 @@ export default function PlanPage() {
                 </div>
 
                 {/* Footnote */}
-                <p className="text-center text-xs text-white/30 mt-10">
+                <p className="text-center text-xs text-white/30 mt-10 mb-20">
                     Prices in USD. Cancel or switch plans anytime from your account settings.
                 </p>
+
+                {/* ── FAQ ── */}
+                <PricingFAQ />
             </div>
         </section>
     );
