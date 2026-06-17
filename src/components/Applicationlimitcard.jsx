@@ -10,12 +10,12 @@ import { BsRocket, BsCheckCircle } from 'react-icons/bs';
  * instead of as a separate full-width banner — that's what was causing the
  * hard seam between a flat dark strip and the gradient hero underneath it.
  */
-export default function ApplicationLimitCard({ applications, limit = 3 }) {
+export default function ApplicationLimitCard({ applications, plan }) {
     const used = applications.length;
-    const remaining = Math.max(limit - used, 0);
+    const remaining = Math.max(plan.maxApplicationPerMonth - used, 0);
     const isFull = remaining <= 0;
     const isLast = !isFull && remaining === 1;
-    const pct = Math.min((used / limit) * 100, 100);
+    const pct = Math.min((used / plan.maxApplicationPerMonth) * 100, 100);
 
     const tone = isFull
         ? {
@@ -54,7 +54,7 @@ export default function ApplicationLimitCard({ applications, limit = 3 }) {
                             Applications this month
                         </p>
                         <span className={`text-sm font-semibold tabular-nums ${tone.count}`}>
-                            {used}<span className="text-white/30 font-normal">/{limit}</span>
+                            {used}<span className="text-white/30 font-normal">/{plan.maxApplicationPerMonth}</span>
                         </span>
                     </div>
 

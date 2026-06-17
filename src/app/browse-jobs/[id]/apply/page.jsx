@@ -1,5 +1,5 @@
 import JobApply from '@/app/browse-jobs/[id]/apply/JobApply';
-import ApplicationLimitCard from '@/components/Applicationlimitcard';
+import ApplicationLimitExceeded from '@/components/Applicationlimitexceeded';
 import { getApplicationsByApplicantId } from '@/lib/api/applications';
 import { getJobById } from '@/lib/api/jobs';
 import { getUserSession } from '@/lib/core/session';
@@ -7,7 +7,6 @@ import { ArrowLeft, Lock, Person, ShieldCheck } from '@gravity-ui/icons';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import React from 'react';
-import { FaUpload } from 'react-icons/fa';
 
 const ApplyPage = async ({ params }) => {
     const { id } = await params;
@@ -35,8 +34,6 @@ const ApplyPage = async ({ params }) => {
 
                 {/* Card */}
                 <div className="relative z-10 flex flex-col items-center text-center max-w-lg w-full px-6 py-16">
-
-                    {/* Badge */}
                     <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5 backdrop-blur-2xl">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#5B4DFF]">
                             <ShieldCheck className="w-4 h-4 text-white" />
@@ -46,7 +43,6 @@ const ApplyPage = async ({ params }) => {
                         </span>
                     </div>
 
-                    {/* Lock Icon */}
                     <div className="relative my-7 w-24 h-24">
                         <div className="absolute inset-0 rounded-full border border-[#6D5FFF]/35" />
                         <div className="absolute inset-2 rounded-full border border-[#6D5FFF]/15" />
@@ -67,7 +63,6 @@ const ApplyPage = async ({ params }) => {
                         {' '}accounts can apply for positions.
                     </p>
 
-                    {/* Info Box */}
                     <div className="w-full border border-white/[0.08] bg-white/[0.03] rounded-2xl px-5 py-1 backdrop-blur-xl mb-7">
                         {[
                             ['Your role', `${user.role.charAt(0).toUpperCase() + user.role.slice(1).replace('_', ' ')}`],
@@ -83,7 +78,6 @@ const ApplyPage = async ({ params }) => {
                         ))}
                     </div>
 
-                    {/* Actions */}
                     <div className="flex flex-col gap-3 w-full">
                         <Link
                             href="/auth/signup?role=job_seeker"
@@ -106,6 +100,11 @@ const ApplyPage = async ({ params }) => {
     }
 
     const applications = await getApplicationsByApplicantId(user.id);
+
+    const plan = {
+        name: 'Free Plan',
+        maxApplicationPerMonth: 3,
+    };
 
     const job = await getJobById(id);
 
@@ -133,9 +132,20 @@ const ApplyPage = async ({ params }) => {
         );
     }
 
+    // ── Limit exceeded → show upgrade gate ──────────────────────────────────
+    if (applications.length >= plan.maxApplicationPerMonth) {
+        return (
+            <ApplicationLimitExceeded
+                plan={plan}
+                applications={applications}
+                job={job}
+            />
+        );
+    }
+
     return (
         <div>
-            <JobApply applicant={user} job={job} applications={applications} />
+            <JobApply applicant={user} job={job} applications={applications} plan={plan} />
         </div>
     );
 };

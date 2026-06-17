@@ -79,7 +79,7 @@ const errCls = 'text-xs text-red-400 mt-1.5 flex items-center gap-1';
 /* ─────────────────────────────────────────
    Main component
 ───────────────────────────────────────── */
-export default function JobApply({ job, applicant, applications }) {
+export default function JobApply({ job, applicant, applications, plan }) {
     const fileInputRef = useRef(null);
 
     const [resumeFile, setResumeFile] = useState(null);
@@ -237,7 +237,7 @@ export default function JobApply({ job, applicant, applications }) {
 
             <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 py-12 sm:py-16">
 
-                <ApplicationLimitCard applications={applications} />
+                <ApplicationLimitCard applications={applications} plan={plan} />
 
                 {/* Back link */}
                 <Link
