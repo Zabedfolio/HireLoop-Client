@@ -19,7 +19,7 @@ import PricingFAQ from '@/components/Pricingfaq';
 ───────────────────────────────────────── */
 const SEEKER_PLANS = [
     {
-        id: 'free',
+        id: 'seeker_free',
         icon: <BsLightningChargeFill className="w-4 h-4" />,
         name: 'Free',
         monthly: 0,
@@ -33,7 +33,7 @@ const SEEKER_PLANS = [
         featured: false,
     },
     {
-        id: 'pro',
+        id: 'seeker_pro',
         icon: <BsGraphUpArrow className="w-4 h-4" />,
         name: 'Pro',
         monthly: 19,
@@ -47,7 +47,7 @@ const SEEKER_PLANS = [
         featured: true,
     },
     {
-        id: 'premium',
+        id: 'seeker_premium',
         icon: <BsRocketTakeoffFill className="w-4 h-4" />,
         name: 'Premium',
         monthly: 39,
@@ -68,7 +68,7 @@ const SEEKER_PLANS = [
 ───────────────────────────────────────── */
 const RECRUITER_PLANS = [
     {
-        id: 'free',
+        id: 'recruiter_free',
         icon: <BsLightningChargeFill className="w-4 h-4" />,
         name: 'Free',
         monthly: 0,
@@ -81,7 +81,7 @@ const RECRUITER_PLANS = [
         featured: false,
     },
     {
-        id: 'growth',
+        id: 'recruiter_growth',
         icon: <BsGraphUpArrow className="w-4 h-4" />,
         name: 'Growth',
         monthly: 49,
@@ -95,7 +95,7 @@ const RECRUITER_PLANS = [
         featured: true,
     },
     {
-        id: 'enterprise',
+        id: 'recruiter_enterprise',
         icon: <BsBuildingsFill className="w-4 h-4" />,
         name: 'Enterprise',
         monthly: 149,
@@ -307,6 +307,7 @@ function PlanCard({ plan, billing }) {
 
             {/* CTA — Stripe checkout */}
             <form action="/api/checkout_sessions" method="POST">
+            <input type='hidden' name='plan_id' value={plan.id}></input>
                 <section>
                     <button
                         type="submit"
