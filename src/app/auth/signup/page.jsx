@@ -114,6 +114,8 @@ export default function SignUpPage() {
         return;
     }
 
+    const plan = formData.role === 'job_seeker' ? 'seeker_free' : 'recruiter_free';
+
     try {
         setLoading(true);
         const result = await signUp.email({
@@ -121,7 +123,8 @@ export default function SignUpPage() {
             password: formData.password,
             name: formData.name,
             role: formData.role,
-            image: formData.image
+            image: formData.image,
+            plan
         });
 
         if (result?.error) {

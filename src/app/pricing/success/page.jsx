@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { BsCheck, BsArrowLeft, BsArrowRight } from 'react-icons/bs'
 import { stripe } from '@/lib/stripe'
 import { redirect } from 'next/navigation'
+import { createSubscription } from '@/lib/actions/subscription'
 
 export default async function Success({ searchParams }) {
   const { session_id } = await searchParams
@@ -12,6 +13,7 @@ export default async function Success({ searchParams }) {
   const {
     status,
     customer_details: { email: customerEmail },
+    metadata,
     line_items,
     amount_total,
   } = await stripe.checkout.sessions.retrieve(session_id, {
@@ -21,6 +23,18 @@ export default async function Success({ searchParams }) {
   if (status === 'open') return redirect('/')
 
   if (status === 'complete') {
+
+    const subsInfo = {
+        email: customerEmail,
+        planId: metadata.planId
+    }
+
+    // update the user plan info
+
+    const result = await createSubscription(subsInfo)
+    console.log(result)
+
+
     const planName = line_items?.data?.[0]?.description ?? 'Your Plan'
     const amount = amount_total ? `$${(amount_total / 100).toFixed(2)}` : null
 

@@ -2,6 +2,7 @@ import JobApply from '@/app/browse-jobs/[id]/apply/JobApply';
 import ApplicationLimitExceeded from '@/components/Applicationlimitexceeded';
 import { getApplicationsByApplicantId } from '@/lib/api/applications';
 import { getJobById } from '@/lib/api/jobs';
+import { getPlanById } from '@/lib/api/plans';
 import { getUserSession } from '@/lib/core/session';
 import { ArrowLeft, Lock, Person, ShieldCheck } from '@gravity-ui/icons';
 import Link from 'next/link';
@@ -101,10 +102,9 @@ const ApplyPage = async ({ params }) => {
 
     const applications = await getApplicationsByApplicantId(user.id);
 
-    const plan = {
-        name: 'Free Plan',
-        maxApplicationPerMonth: 3,
-    };
+    const plan = await getPlanById(user?.plan || 'seeker_free')
+
+
 
     const job = await getJobById(id);
 

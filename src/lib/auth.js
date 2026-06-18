@@ -18,6 +18,9 @@ export const auth = betterAuth({
         input: true,
         defaultValue: "job_seeker",
       },
+      plan:{
+        defaultValue: "seeker_free",
+      }
     },
   },
   database: mongodbAdapter(db, {
