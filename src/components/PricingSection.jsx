@@ -12,7 +12,6 @@ import {
 } from 'react-icons/bs';
 
 import { useState } from 'react';
-import PricingFAQ from '@/components/Pricingfaq';
 
 /* ─────────────────────────────────────────
    Static data — Job Seeker plans
@@ -117,18 +116,16 @@ const YEARLY_DISCOUNT = 0.25; // 25% off, matches the "Save 25%" badge
 /* ─────────────────────────────────────────
    Main component
 ───────────────────────────────────────── */
-export default function PlanPage() {
+export default function PricingSection() {
     const [billing, setBilling] = useState('monthly'); // 'monthly' | 'yearly'
     const [audience, setAudience] = useState('seekers'); // 'seekers' | 'recruiters'
 
     const plans = audience === 'seekers' ? SEEKER_PLANS : RECRUITER_PLANS;
 
     return (
-        <section className="relative min-h-screen overflow-hidden bg-[#090909]">
-            {/* Background — matches JobApply's treatment */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#1B1440_0%,#090909_50%,#000_100%)]" />
+        <section className="relative overflow-hidden bg-[#010103]">
+            {/* Background */}
             <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,#ffffff18_1px,transparent_1px),linear-gradient(to_bottom,#ffffff18_1px,transparent_1px)] bg-[size:72px_72px]" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-[#6D5FFF]/[0.10] blur-[130px] rounded-full pointer-events-none" />
             <div className="absolute top-16 left-[10%] w-1.5 h-1.5 rounded-full bg-white/70 shadow-[0_0_18px_5px_rgba(255,255,255,0.3)]" />
             <div className="absolute top-28 right-[12%] w-1.5 h-1.5 rounded-full bg-[#6D5FFF] shadow-[0_0_22px_7px_rgba(109,95,255,0.5)]" />
 
@@ -196,12 +193,9 @@ export default function PlanPage() {
                 </div>
 
                 {/* Footnote */}
-                <p className="text-center text-xs text-white/30 mt-10 mb-20">
+                <p className="text-center text-xs text-white/30 mt-10">
                     Prices in USD. Cancel or switch plans anytime from your account settings.
                 </p>
-
-                {/* ── FAQ ── */}
-                <PricingFAQ />
             </div>
         </section>
     );
@@ -239,7 +233,9 @@ function ToggleButton({ active, onClick, icon, label, badge }) {
     );
 }
 
-
+/* ─────────────────────────────────────────
+   Pricing card
+───────────────────────────────────────── */
 function PlanCard({ plan, billing }) {
     const price =
         billing === 'yearly'
@@ -305,25 +301,20 @@ function PlanCard({ plan, billing }) {
                 ))}
             </ul>
 
-            {/* CTA — Stripe checkout */}
-            <form action="/api/checkout_sessions" method="POST">
-                <section>
-                    <button
-                        type="submit"
-                        role="link"
-                        className={[
-                            'flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium',
-                            'transition-all duration-300 hover:scale-[1.01]',
-                            plan.featured
-                                ? 'bg-[#5B4DFF] text-white hover:bg-[#6D5FFF]'
-                                : 'bg-white/[0.05] border border-white/10 text-white/80 hover:bg-white/[0.09] hover:border-white/20',
-                        ].join(' ')}
-                    >
-                        {plan.monthly === 0 ? 'Get Started' : 'Choose This Plan'}
-                        <BsArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                </section>
-            </form>
+            {/* CTA */}
+            <button
+                type="button"
+                className={[
+                    'flex h-12 w-full items-center justify-center gap-2 rounded-[14px] text-sm font-medium',
+                    'transition-all duration-300 hover:scale-[1.01]',
+                    plan.featured
+                        ? 'bg-[#5B4DFF] text-white hover:bg-[#6D5FFF]'
+                        : 'bg-white/[0.05] border border-white/10 text-white/80 hover:bg-white/[0.09] hover:border-white/20',
+                ].join(' ')}
+            >
+                {plan.monthly === 0 ? 'Get Started' : 'Choose This Plan'}
+                <BsArrowRight className="w-3.5 h-3.5" />
+            </button>
         </div>
     );
 }
