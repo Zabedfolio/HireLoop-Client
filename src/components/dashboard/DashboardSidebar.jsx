@@ -12,14 +12,29 @@ import House from '@gravity-ui/icons/House';
 import { useSession } from '@/lib/auth-client';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Bookmark, CreditCard, FileText, Magnifier } from '@gravity-ui/icons';
 
-const navItems = [
+const recruiterNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutCellsLarge, href: '/dashboard/recruiter' },
     { id: 'company', label: 'My Company', icon: House, href: '/dashboard/recruiter/company' },
     { id: 'jobs', label: 'Manage Jobs', icon: Briefcase, href: '/dashboard/recruiter/jobs' },
     { id: 'applications', label: 'Applications', icon: Persons, href: '/dashboard/recruiter/applications' },
     { id: 'settings', label: 'Settings', icon: Gear, href: '/dashboard/recruiter/settings' },
 ];
+
+const jobSeekerNavItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutCellsLarge, href: '/dashboard/job-seeker' },
+    { id: 'jobs', label: 'Jobs', icon: Magnifier, href: '/dashboard/job-seeker/jobs' },
+    { id: 'saved-jobs', label: 'Saved Jobs', icon: Bookmark, href: '/dashboard/job-seeker/saved-jobs' },
+    { id: 'applications', label: 'Applications', icon: FileText, href: '/dashboard/job-seeker/applications' },
+    { id: 'billing', label: 'Billing', icon: CreditCard, href: '/dashboard/job-seeker/billing' },
+    { id: 'settings', label: 'Settings', icon: Gear, href: '/dashboard/job-seeker/settings' },
+];
+
+const navLinksMap = {
+    job_seeker: jobSeekerNavItems,
+    recruiter: recruiterNavItems
+}
 
 function getInitials(name) {
     if (!name) return '??';
@@ -31,19 +46,16 @@ function getInitials(name) {
         .toUpperCase();
 }
 
-function routeToNavId(pathname) {
-    if (pathname.startsWith('/dashboard/recruiter/company')) return 'company';
-    if (pathname.startsWith('/dashboard/recruiter/jobs')) return 'jobs';
-    if (pathname.startsWith('/dashboard/recruiter/applications')) return 'applications';
-    if (pathname.startsWith('/dashboard/recruiter/settings')) return 'settings';
-    if (pathname.startsWith('/dashboard/recruiter')) return 'dashboard';
-    return 'dashboard';
+function routeToNavId(pathname, navItems) {
+    if (!pathname) return 'dashboard';
+    const matched = navItems.find((item) => item.id !== 'dashboard' && pathname.startsWith(item.href));
+    return matched ? matched.id : 'dashboard';
 }
 
 /* ─────────────────────────────────────────────
    Shared nav list — used in both drawer & desktop
 ───────────────────────────────────────────── */
-function NavList({ active, setActive, collapsed = false, onClose }) {
+function NavList({ navItems, active, setActive, collapsed = false, onClose }) {
     return (
         <nav className={`flex-1 py-6 space-y-1 ${collapsed ? 'px-2' : 'px-4'}`}>
             {navItems.map(({ id, label, href, icon: Icon }) => {
@@ -81,7 +93,7 @@ function NavList({ active, setActive, collapsed = false, onClose }) {
 /* ─────────────────────────────────────────────
    Full sidebar content (drawer + desktop expanded)
 ───────────────────────────────────────────── */
-function FullSidebarContent({ active, setActive, onToggle, onClose }) {
+function FullSidebarContent({ navItems, active, setActive, onToggle, onClose }) {
     const { data: session } = useSession();
     const userName = session?.user?.name ?? 'Unknown User';
     const userRole = session?.user?.role ?? 'Recruiter';
@@ -137,7 +149,7 @@ function FullSidebarContent({ active, setActive, onToggle, onClose }) {
                 </div>
             </div>
 
-            <NavList active={active} setActive={setActive} onClose={onClose} />
+            <NavList navItems={navItems} active={active} setActive={setActive} onClose={onClose} />
 
             {/* Bottom help card */}
             <div className="p-4">
@@ -153,7 +165,7 @@ function FullSidebarContent({ active, setActive, onToggle, onClose }) {
 /* ─────────────────────────────────────────────
    Icon-only rail (desktop collapsed state)
 ───────────────────────────────────────────── */
-function CollapsedRail({ active, setActive, onToggle }) {
+function CollapsedRail({ navItems, active, setActive, onToggle }) {
     const { data: session } = useSession();
     const userName = session?.user?.name ?? 'Unknown User';
     const userImage = session?.user?.image || null;
@@ -183,7 +195,7 @@ function CollapsedRail({ active, setActive, onToggle }) {
 
             <div className="w-full px-2 h-px bg-white/10 my-1" />
 
-            <NavList active={active} setActive={setActive} collapsed />
+            <NavList navItems={navItems} active={active} setActive={setActive} collapsed />
         </div>
     );
 }
@@ -191,7 +203,10 @@ function CollapsedRail({ active, setActive, onToggle }) {
 
 export default function DashboardSidebar() {
     const pathname = usePathname();
-    const active = routeToNavId(pathname || '/dashboard/recruiter');
+    const { data: session } = useSession();
+    const role = session?.user?.role ?? 'recruiter';
+    const navItems = navLinksMap[role] ?? recruiterNavItems;
+    const active = routeToNavId(pathname || navItems[0]?.href, navItems);
     const setActive = () => {};
     const [mobileOpen, setMobileOpen] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
@@ -258,6 +273,7 @@ export default function DashboardSidebar() {
                         "
                     >
                         <FullSidebarContent
+                            navItems={navItems}
                             active={active}
                             setActive={setActive}
                             onClose={() => setMobileOpen(false)}
@@ -279,11 +295,13 @@ export default function DashboardSidebar() {
             >
                 {collapsed
                     ? <CollapsedRail
+                        navItems={navItems}
                         active={active}
                         setActive={setActive}
                         onToggle={() => setCollapsed(false)}
                     />
                     : <FullSidebarContent
+                        navItems={navItems}
                         active={active}
                         setActive={setActive}
                         onToggle={() => setCollapsed(true)}

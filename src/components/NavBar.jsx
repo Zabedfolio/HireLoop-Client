@@ -20,6 +20,11 @@ const navLinks = [
   { label: "Pricing", href: "/pricing" },
 ];
 
+const dashboardLinks = {
+  job_seeker: "/dashboard/job-seeker",
+  recruiter: "/dashboard/recruiter",
+};
+
 function UserMenu({ user }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -107,9 +112,9 @@ function UserMenu({ user }) {
           <div className="px-2 pb-2 border-t border-white/10 pt-1.5">
             <button
               onClick={async () => {
-                await authClient.signOut({ callbackURL: '/' });
+                await authClient.signOut({ callbackURL: "/" });
                 setOpen(false);
-                window.location.assign('/');
+                window.location.assign("/");
               }}
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
             >
@@ -128,6 +133,10 @@ export default function NavBar() {
   const pathname = usePathname();
   const { data: session, isPending } = useSession();
   const user = session?.user;
+
+  const links = user?.email
+    ? [...navLinks, { label: "Dashboard", href: dashboardLinks[user?.role || "job_seeker"] }]
+    : navLinks;
 
   const isActiveLink = (href) => {
     if (href === "/") return pathname === "/";
@@ -153,7 +162,7 @@ export default function NavBar() {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1 bg-[#222222] rounded-lg px-2">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -211,7 +220,7 @@ export default function NavBar() {
       <div className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
         <div className="px-4 pb-4 pt-2">
           <div className="rounded-xl px-2 py-2 flex flex-col gap-1">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -267,9 +276,9 @@ export default function NavBar() {
                   <div className="w-px bg-white/10" />
                   <button
                     onClick={async () => {
-                      await authClient.signOut({ callbackURL: '/' });
+                      await authClient.signOut({ callbackURL: "/" });
                       setMenuOpen(false);
-                      window.location.assign('/');
+                      window.location.assign("/");
                     }}
                     className="flex-1 flex flex-col items-center gap-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 py-2.5 transition-colors"
                   >
