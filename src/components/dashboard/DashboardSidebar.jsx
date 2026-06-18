@@ -204,8 +204,8 @@ function CollapsedRail({ navItems, active, setActive, onToggle }) {
 export default function DashboardSidebar() {
     const pathname = usePathname();
     const { data: session } = useSession();
-    const role = session?.user?.role ?? 'recruiter';
-    const navItems = navLinksMap[role] ?? recruiterNavItems;
+    const role = session?.user?.role ?? 'job_seeker';
+    const navItems = navLinksMap[role || 'job_seeker'];
     const active = routeToNavId(pathname || navItems[0]?.href, navItems);
     const setActive = () => {};
     const [mobileOpen, setMobileOpen] = useState(false);
