@@ -169,6 +169,7 @@ export default function JobApply({ job, applicant, applications, plan }) {
     formData.set('applicant_linkedinUrl', form.linkedinUrl);
     formData.set('applicant_coverLetter', form.coverLetter);
     formData.set('applicant_expectedSalary', form.expectedSalary);
+    formData.set('status', 'Applied');
 
     if (job) {
         formData.set('jobId', job._id?.toString() ?? '');

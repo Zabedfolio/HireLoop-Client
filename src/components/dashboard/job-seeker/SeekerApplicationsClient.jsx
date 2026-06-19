@@ -33,6 +33,23 @@ const formatExactDate = (d) => {
   } catch { return '—'; }
 };
 
+// Handles both raw Mongo docs ({ $oid: '...' } / { $date: '...' }) and
+// already-serialized plain strings, so the table works with either shape.
+const getId = (val) => {
+  if (!val) return null;
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object' && val.$oid) return val.$oid;
+  if (typeof val.toString === 'function') return val.toString();
+  return null;
+};
+
+const getDateValue = (val) => {
+  if (!val) return null;
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object' && val.$date) return val.$date;
+  return val;
+};
+
 // ─── Design tokens (matches recruiter dashboard) ──────────────────────────────
 const T = {
   bg0:    '#080809',
@@ -148,10 +165,10 @@ const MobileApplicationCard = ({ app }) => (
     </div>
 
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
-      <span style={{ fontSize: 11, color: T.text3 }} title={formatExactDate(app.createAt)}>
-        {formatRelative(app.createAt)}
+      <span style={{ fontSize: 11, color: T.text3 }} title={formatExactDate(getDateValue(app.createAt))}>
+        {formatRelative(getDateValue(app.createAt))}
       </span>
-      <ViewDetailsButton jobId={app.jobId} />
+      <ViewDetailsButton jobId={getId(app.jobId)} />
     </div>
   </div>
 );
@@ -168,7 +185,9 @@ const SeekerApplicationsTable = ({ applications = [] }) => {
   }, []);
 
   const sorted = useMemo(
-    () => [...applications].sort((a, b) => new Date(b.createAt ?? 0) - new Date(a.createAt ?? 0)),
+    () => [...applications].sort(
+      (a, b) => new Date(getDateValue(b.createAt) ?? 0) - new Date(getDateValue(a.createAt) ?? 0)
+    ),
     [applications]
   );
 
@@ -191,7 +210,7 @@ const SeekerApplicationsTable = ({ applications = [] }) => {
           {isMobile ? (
             <div>
               {sorted.map((app) => (
-                <MobileApplicationCard key={app._id} app={app} />
+                <MobileApplicationCard key={getId(app._id)} app={app} />
               ))}
             </div>
           ) : (
@@ -209,7 +228,7 @@ const SeekerApplicationsTable = ({ applications = [] }) => {
                 <tbody>
                   {sorted.map((app, i) => (
                     <tr
-                      key={app._id ?? i}
+                      key={getId(app._id) ?? i}
                       style={{ borderBottom: `1px solid ${T.border}`, transition: 'background 0.1s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.018)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -223,15 +242,15 @@ const SeekerApplicationsTable = ({ applications = [] }) => {
                         <CompanyCell name={app.companyName} logo={app.companyLogo} />
                       </td>
                       <td style={{ padding: '13px 20px' }}>
-                        <span style={{ fontSize: 12, color: T.text2 }} title={formatExactDate(app.createAt)}>
-                          {formatRelative(app.createAt)}
+                        <span style={{ fontSize: 12, color: T.text2 }} title={formatExactDate(getDateValue(app.createAt))}>
+                          {formatRelative(getDateValue(app.createAt))}
                         </span>
                       </td>
                       <td style={{ padding: '13px 20px' }}>
                         <ApplicationStatusBadge status={app.status} />
                       </td>
                       <td style={{ padding: '13px 20px' }}>
-                        <ViewDetailsButton jobId={app.jobId} />
+                        <ViewDetailsButton jobId={getId(app.jobId)} />
                       </td>
                     </tr>
                   ))}

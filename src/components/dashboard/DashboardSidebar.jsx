@@ -12,7 +12,7 @@ import House from '@gravity-ui/icons/House';
 import { useSession } from '@/lib/auth-client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Bookmark, CreditCard, FileText, Magnifier } from '@gravity-ui/icons';
+import { Bookmark, CreditCard, Factory, FileText, Magnifier } from '@gravity-ui/icons';
 
 const recruiterNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutCellsLarge, href: '/dashboard/recruiter' },
@@ -31,9 +31,19 @@ const jobSeekerNavItems = [
     { id: 'settings', label: 'Settings', icon: Gear, href: '/dashboard/job-seeker/settings' },
 ];
 
+const adminNavItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutCellsLarge, href: '/dashboard/admin' },
+    { id: 'users', label: 'Users', icon: Persons, href: '/dashboard/admin/users' },
+    { id: 'companies', label: 'Companies', icon: Factory, href: '/dashboard/admin/companies' },
+    { id: 'jobs', label: 'Jobs', icon: Briefcase, href: '/dashboard/admin/jobs' },
+    { id: 'payments', label: 'Payments', icon: CreditCard, href: '/dashboard/admin/payments' },
+    { id: 'settings', label: 'Settings', icon: Gear, href: '/dashboard/admin/settings' },
+];
+
 const navLinksMap = {
     job_seeker: jobSeekerNavItems,
-    recruiter: recruiterNavItems
+    recruiter: recruiterNavItems,
+    admin: adminNavItems,
 }
 
 function getInitials(name) {
@@ -209,7 +219,7 @@ export default function DashboardSidebar() {
     const pathname = usePathname();
     const { data: session } = useSession();
     const role = session?.user?.role ?? 'job_seeker';
-    const navItems = navLinksMap[role || 'job_seeker'];
+    const navItems = navLinksMap[role] ?? navLinksMap['job_seeker'];
     const active = routeToNavId(pathname || navItems[0]?.href, navItems);
     const setActive = () => { };
     const [mobileOpen, setMobileOpen] = useState(false);

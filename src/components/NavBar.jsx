@@ -23,6 +23,7 @@ const navLinks = [
 const dashboardLinks = {
   job_seeker: "/dashboard/job-seeker",
   recruiter: "/dashboard/recruiter",
+  admin: "/dashboard/admin"
 };
 
 function UserMenu({ user }) {
