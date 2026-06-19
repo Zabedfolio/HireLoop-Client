@@ -97,6 +97,10 @@ function FullSidebarContent({ navItems, active, setActive, onToggle, onClose }) 
     const { data: session } = useSession();
     const userName = session?.user?.name ?? 'Unknown User';
     const userRole = session?.user?.role ?? 'Recruiter';
+    const rawPlan = session?.user?.plan ?? 'free'
+    const userPlan = rawPlan.includes('_')
+        ? rawPlan.split('_')[1].replace(/^\w/, c => c.toUpperCase())
+        : rawPlan.replace(/^\w/, c => c.toUpperCase())
     const userImage = session?.user?.image || null;
     const initials = getInitials(userName);
 
@@ -105,15 +109,15 @@ function FullSidebarContent({ navItems, active, setActive, onToggle, onClose }) 
             {/* Header row: logo + collapse toggle */}
             <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
                 <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <Image
-              src="/images/logo.png"
-              alt="Programming Hero Logo"
-              width={86}
-              height={86}
-              className="rounded-lg"
-              priority
-            />
-          </Link>
+                    <Image
+                        src="/images/logo.png"
+                        alt="Programming Hero Logo"
+                        width={86}
+                        height={86}
+                        className="rounded-lg"
+                        priority
+                    />
+                </Link>
                 <button
                     onClick={onToggle}
                     className="
@@ -144,7 +148,7 @@ function FullSidebarContent({ navItems, active, setActive, onToggle, onClose }) 
                         </div>
                     </div>
                     <div className="mt-3 inline-flex rounded-full bg-[#5C53FE]/15 border border-[#5C53FE]/30 px-3 py-1">
-                        <span className="text-[#8E87FF] text-xs font-medium">Premium</span>
+                        <span className="text-[#8E87FF] text-xs font-medium">{userPlan}</span>
                     </div>
                 </div>
             </div>
@@ -207,7 +211,7 @@ export default function DashboardSidebar() {
     const role = session?.user?.role ?? 'job_seeker';
     const navItems = navLinksMap[role || 'job_seeker'];
     const active = routeToNavId(pathname || navItems[0]?.href, navItems);
-    const setActive = () => {};
+    const setActive = () => { };
     const [mobileOpen, setMobileOpen] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
 
