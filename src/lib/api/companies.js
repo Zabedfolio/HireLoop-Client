@@ -1,6 +1,12 @@
 import { serverFetch } from "@/lib/core/server";
 import { getUserSession } from "@/lib/core/session";
 
+
+
+export const getCompanies = async()=>{
+    return serverFetch(`/api/companies`)
+}
+
 export const getRecruiterCompany = async (recruiter_id) => {
     if (!recruiter_id) {
         return null;

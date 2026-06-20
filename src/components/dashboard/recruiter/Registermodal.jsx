@@ -86,7 +86,11 @@ const RegisterModal = ({ onClose, onSubmit, initialData = null, recruiter = null
 
     try {
       const result = await createCompany(payload);
-      onSubmit(result);
+      const newCompany = {
+        ...payload,
+        _id: result.insertedId || initialData?._id || result._id
+      };
+      onSubmit(newCompany);
       if (result.insertedId) {
         toast.success('Company registered successfully!');
       }

@@ -146,54 +146,57 @@ export default function JobApply({ job, applicant, applications, plan }) {
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length) {
-        setErrors(errs);
-        const firstKey = Object.keys(errs)[0];
-        document.getElementById(`field-${firstKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-    }
+        e.preventDefault();
+        const errs = validate();
+        if (Object.keys(errs).length) {
+            setErrors(errs);
+            const firstKey = Object.keys(errs)[0];
+            document.getElementById(`field-${firstKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
 
-    const formData = new FormData(e.currentTarget);
+        const formData = new FormData(e.currentTarget);
 
-    formData.set('applicantId', applicant?.id ?? '');
-    formData.set('applicant_fullName', form.fullName);
-    formData.set('applicant_email', form.email);
-    formData.set('applicant_phone', form.phone);
-    formData.set('applicant_location', form.location);
-    formData.set('applicant_experience', form.experience);
-    formData.set('applicant_noticePeriod', form.noticePeriod);
-    formData.set('applicant_preferredWork', form.preferredWork);
-    formData.set('applicant_portfolioUrl', form.portfolioUrl);
-    formData.set('applicant_linkedinUrl', form.linkedinUrl);
-    formData.set('applicant_coverLetter', form.coverLetter);
-    formData.set('applicant_expectedSalary', form.expectedSalary);
-    formData.set('status', 'Applied');
+        formData.set('applicantId', applicant?.id ?? '');
+        formData.set('applicant_fullName', form.fullName);
+        formData.set('applicant_email', form.email);
+        formData.set('applicant_phone', form.phone);
+        formData.set('applicant_location', form.location);
+        formData.set('applicant_experience', form.experience);
+        formData.set('applicant_noticePeriod', form.noticePeriod);
+        formData.set('applicant_preferredWork', form.preferredWork);
+        formData.set('applicant_portfolioUrl', form.portfolioUrl);
+        formData.set('applicant_linkedinUrl', form.linkedinUrl);
+        formData.set('applicant_coverLetter', form.coverLetter);
+        formData.set('applicant_expectedSalary', form.expectedSalary);
+        formData.set('status', 'Applied');
 
-    if (job) {
-        formData.set('jobId', job._id?.toString() ?? '');
-        formData.set('jobTitle', job.job_title ?? '');
-        formData.set('companyId', job.companyId ?? '');
-        formData.set('companyName', job.companyName ?? '');
-        formData.set('companyLogo', job.companyLogo ?? '');
-    }
+        if (job) {
+            formData.set('jobId', job._id?.toString() ?? '');
+            formData.set('jobTitle', job.job_title ?? '');
+            formData.set('companyId', job.companyId ?? '');
+            formData.set('companyName', job.companyName ?? '');
+            formData.set('companyLogo', job.companyLogo ?? '');
+            formData.set('companyStatus', job.company && job.company.status ? job.company.status : 'Pending');
+        }
 
-    if (resumeFile) {
-        formData.set('resume', resumeFile);
-    }
+        if (resumeFile) {
+            formData.set('resume', resumeFile);
+        }
 
-    const payload = Object.fromEntries(formData.entries());
-    console.log('Submitting application payload:', payload);
+        const payload = Object.fromEntries(formData.entries());
+        console.log('Submitting application payload:', payload);
 
-    const res = await submitApplication(payload);
-    if (res.insertedId) {
-        toast.success('Application submitted successfully!');
-        setSubmitted(true);
-    } else {
-        toast.error('Failed to submit application. Please try again later.');
-    }
-};
+        const res = await submitApplication(payload);
+        if (res.insertedId) {
+            const savedCompany = { ...company, _id: res.insertedId };
+            onCompanyCreated?.(savedCompany);
+            toast.success('Application submitted successfully!');
+            setSubmitted(true);
+        } else {
+            toast.error('Failed to submit application. Please try again later.');
+        }
+    };
 
     if (submitted) {
         return (

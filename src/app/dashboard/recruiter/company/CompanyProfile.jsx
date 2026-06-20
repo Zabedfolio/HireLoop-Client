@@ -9,7 +9,22 @@ import React, { useState } from 'react';
 
 const CompanyProfile = ({recruiter, recruiterCompany}) => {
   const [showModal, setShowModal] = useState(false);
-  const [company, setCompany]     = useState(recruiterCompany);
+  
+  const getInitialCompany = (val) => {
+    if (!val) return null;
+    if (Array.isArray(val)) {
+      return val.length > 0 ? val[0] : null;
+    }
+    if (typeof val === 'object' && Object.keys(val).length === 0) {
+      return null;
+    }
+    if (!val._id && !val.company_name) {
+      return null;
+    }
+    return val;
+  };
+
+  const [company, setCompany]     = useState(() => getInitialCompany(recruiterCompany));
   const [modalCompany, setModalCompany] = useState(null);
 
   const openRegisterModal = () => {
