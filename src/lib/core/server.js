@@ -30,19 +30,22 @@ export const serverFetch = async (path) => {
     }
 };
 
-export const serverMutation = async (path, data) => {
+export const serverMutation = async (path, data, method = 'POST') => {
     const res = await fetch(`${baseurl}${path}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        method,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     });
 
     const text = await res.text();
-    if (!text) {
-        return null;
+
+    if (!res.ok) {
+        console.error('serverMutation error:', res.status, text);
+        throw new Error(text || `Request failed with status ${res.status}`);
     }
+
+    if (!text) return null;
+
     try {
         return JSON.parse(text);
     } catch (error) {
