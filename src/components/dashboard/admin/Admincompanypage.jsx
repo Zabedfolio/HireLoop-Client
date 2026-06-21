@@ -214,6 +214,11 @@ const CompanyRow = ({ company, onApprove, onReject }) => {
                 <span style={{ fontSize: 12, color: T.text2 }}>{company.employee_count ?? '—'}</span>
             </td>
 
+            {/* Applications */}
+            <td style={{ padding: '14px 20px' }}>
+                <span style={{ fontSize: 12, color: T.text2 }}>{company.jobCount ?? '—'}</span>
+            </td>
+
             {/* Status */}
             <td style={{ padding: '14px 20px' }}>
                 <StatusBadge status={company.status} />
@@ -299,7 +304,7 @@ const AdminCompanyPage = ({ companies: initialCompanies = [] }) => {
         toast.error(`${company?.company_name} has been rejected`);
     };
 
-    const COLS = ['Company', 'Industry', 'Website', 'Employees', 'Status', 'Registered', 'Actions'];
+    const COLS = ['Company', 'Industry', 'Website', 'Employees', 'Applications', 'Status', 'Registered', 'Actions'];
 
     const STATUS_FILTER_OPTIONS = [
         { value: 'all', label: 'All' },
@@ -447,7 +452,7 @@ const AdminCompanyPage = ({ companies: initialCompanies = [] }) => {
                         ) : sorted.length === 0 ? (
                             <EmptyState search={search} />
                         ) : (
-                            <table style={{ width: '100%', minWidth: 820, borderCollapse: 'collapse' }}>
+                            <table style={{ width: '100%', minWidth: 900, borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ borderBottom: `1px solid rgba(255,255,255,0.05)` }}>
                                         {COLS.map((h, i) => (
