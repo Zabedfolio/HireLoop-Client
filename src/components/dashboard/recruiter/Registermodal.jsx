@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { T } from '@/lib/actions/Tokens';
 import { XIcon, MapPinIcon, UploadIcon } from '@/components/dashboard/recruiter/Icons';
-import { createCompany } from '@/lib/actions/companies.js';
+import { createCompany, updateCompany } from '@/lib/actions/companies.js';
 import toast from 'react-hot-toast';
 
 const RegisterModal = ({ onClose, onSubmit, initialData = null, recruiter = null }) => {
@@ -85,17 +85,28 @@ const RegisterModal = ({ onClose, onSubmit, initialData = null, recruiter = null
     };
 
     try {
-      const result = await createCompany(payload);
-      const newCompany = {
-        ...payload,
-        _id: result.insertedId || initialData?._id || result._id
-      };
-      onSubmit(newCompany);
-      if (result.insertedId) {
-        toast.success('Company registered successfully!');
+      if (initialData?._id) {
+        await updateCompany(initialData._id, payload);
+        const newCompany = {
+          ...payload,
+          _id: initialData._id,
+        };
+        onSubmit(newCompany);
+        toast.success('Company details updated successfully!');
+      } else {
+        const result = await createCompany(payload);
+        const newCompany = {
+          ...payload,
+          _id: result.insertedId || result._id
+        };
+        onSubmit(newCompany);
+        if (result.insertedId) {
+          toast.success('Company registered successfully!');
+        }
       }
     } catch (error) {
-      console.error('Company creation error:', error);
+      console.error('Company save error:', error);
+      toast.error('Failed to save company details.');
     }
 
     setIsLoading(false);

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import LayoutCellsLarge from '@gravity-ui/icons/LayoutCellsLarge';
 import LayoutSideContentLeft from '@gravity-ui/icons/LayoutSideContentLeft';
 import Briefcase from '@gravity-ui/icons/Briefcase';
@@ -217,7 +217,15 @@ function CollapsedRail({ navItems, active, setActive, onToggle }) {
 
 export default function DashboardSidebar() {
     const pathname = usePathname();
+    const router = useRouter();
     const { data: session } = useSession();
+
+    useEffect(() => {
+        if (session?.user?.status === 'suspended') {
+            router.push('/unauthorized?reason=suspended');
+        }
+    }, [session, router]);
+
     const role = session?.user?.role ?? 'job_seeker';
     const navItems = navLinksMap[role] ?? navLinksMap['job_seeker'];
     const active = routeToNavId(pathname || navItems[0]?.href, navItems);

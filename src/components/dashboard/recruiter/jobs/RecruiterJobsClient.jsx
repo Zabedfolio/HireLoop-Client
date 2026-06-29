@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
+import { updateJob, deleteJob } from '@/lib/actions/job';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatDate = (d) => {
@@ -207,7 +209,7 @@ const DetailPanel = ({ job }) => {
 };
 
 // ─── Action Menu ──────────────────────────────────────────────────────────────
-const ActionMenu = ({ job, onDelete }) => {
+const ActionMenu = ({ job, onDelete, onToggleStatus }) => {
   const [open, setOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState({});
   const buttonRef = useRef(null);
@@ -228,7 +230,7 @@ const ActionMenu = ({ job, onDelete }) => {
         top: rect.bottom + 8,
         left: rect.right - 140,
         zIndex: 99999,
-        width: 156,
+        width: 170,
       });
     }
   }, [open]);
@@ -243,7 +245,7 @@ const ActionMenu = ({ job, onDelete }) => {
         style={{
           width: 30, height: 30, borderRadius: 8, border: 'none',
           background: 'transparent', color: T.text3,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center',
           cursor: 'pointer', transition: 'background 0.12s, color 0.12s',
         }}
         onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = T.text1; }}
@@ -262,27 +264,44 @@ const ActionMenu = ({ job, onDelete }) => {
           background: '#151516', padding: '3px 0',
           boxShadow: '0 16px 32px rgba(0,0,0,0.5)',
         }}>
-          {[
-            { label: 'View details', icon: <EyeIcon /> },
-            { label: 'Edit job',     icon: <EditIcon /> },
-          ].map(({ label, icon }) => (
-            <button
-              key={label}
-              style={itemBase}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-            >
-              {icon}{label}
-            </button>
-          ))}
+          <button
+            style={itemBase}
+            onClick={() => window.open(`/browse-jobs/${id}`, '_blank')}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <EyeIcon />View public page
+          </button>
+          
+          <button
+            style={itemBase}
+            onClick={() => window.location.href = `/dashboard/recruiter/jobs/${id}/applicants`}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ flexShrink: 0 }}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+            View applicants
+          </button>
+
+          <button
+            style={itemBase}
+            onClick={() => onToggleStatus?.(job)}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ flexShrink: 0 }}><path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+            {job.status === 'active' ? 'Close listing' : 'Reopen listing'}
+          </button>
+          
           <div style={{ height: '0.5px', background: T.border, margin: '3px 0' }} />
+          
           <button
             style={{ ...itemBase, color: T.red }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(248,113,113,0.07)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             onClick={() => onDelete?.(id)}
           >
-            <TrashIcon />Delete
+            <TrashIcon />Delete post
           </button>
         </div>
       )}
@@ -310,7 +329,7 @@ const StatCard = ({ label, value, sub, accent }) => (
 );
 
 // ─── Mobile Card ──────────────────────────────────────────────────────────────
-const MobileJobCard = ({ job, expanded, onToggle, onDelete }) => (
+const MobileJobCard = ({ job, expanded, onToggle, onDelete, onToggleStatus }) => (
   <div style={{ borderBottom: `1px solid ${T.border}` }}>
     <div
       style={{ padding: '14px 16px', cursor: 'pointer' }}
@@ -325,7 +344,7 @@ const MobileJobCard = ({ job, expanded, onToggle, onDelete }) => (
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ fontSize: 11, color: T.text3, transition: 'transform 0.2s', display: 'inline-block', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
-          <ActionMenu job={job} onDelete={onDelete} />
+          <ActionMenu job={job} onDelete={onDelete} onToggleStatus={onToggleStatus} />
         </div>
       </div>
 
@@ -368,7 +387,7 @@ const MobileJobCard = ({ job, expanded, onToggle, onDelete }) => (
 );
 
 // ─── Table Row ────────────────────────────────────────────────────────────────
-const TableRow = ({ job, expanded, onToggle, onDelete }) => {
+const TableRow = ({ job, expanded, onToggle, onDelete, onToggleStatus }) => {
   const [hovered, setHovered] = useState(false);
   return (
     <>
@@ -456,7 +475,7 @@ const TableRow = ({ job, expanded, onToggle, onDelete }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <ActionMenu job={job} onDelete={onDelete} />
+            <ActionMenu job={job} onDelete={onDelete} onToggleStatus={onToggleStatus} />
           </div>
         </td>
       </tr>
@@ -516,7 +535,30 @@ const JobsTable = ({ jobs = [] }) => {
   );
 
   const toggle = (id) => setExpanded(prev => prev === id ? null : id);
-  const handleDelete = (id) => setLocalJobs(prev => prev.filter(j => (j._id ?? j.id) !== id));
+  
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this job posting permanently?')) {
+      try {
+        await deleteJob(id);
+        setLocalJobs(prev => prev.filter(j => (j._id ?? j.id) !== id));
+        toast.success('Job posting deleted successfully');
+      } catch (e) {
+        toast.error('Failed to delete job posting');
+      }
+    }
+  };
+
+  const handleToggleStatus = async (job) => {
+    const id = job._id ?? job.id;
+    const newStatus = job.status === 'active' ? 'closed' : 'active';
+    try {
+      await updateJob(id, { status: newStatus });
+      setLocalJobs(prev => prev.map(j => (j._id ?? j.id) === id ? { ...j, status: newStatus } : j));
+      toast.success(`Job listing status set to ${newStatus}`);
+    } catch (e) {
+      toast.error('Failed to toggle job status');
+    }
+  };
 
   const totalApps  = localJobs.reduce((s, j) => s + (j.applications_count ?? 0), 0);
   const activeCount = localJobs.filter(j => j.status === 'active').length;
@@ -576,7 +618,7 @@ const JobsTable = ({ jobs = [] }) => {
                 ? <div style={{ padding: '48px 24px', textAlign: 'center', fontSize: 12, color: T.text3 }}>No jobs match <span style={{ color: T.text2 }}>"{search}"</span></div>
                 : sorted.map((job, i) => {
                     const id = job._id ?? job.id ?? i;
-                    return <MobileJobCard key={id} job={job} expanded={expanded === id} onToggle={() => toggle(id)} onDelete={handleDelete} />;
+                    return <MobileJobCard key={id} job={job} expanded={expanded === id} onToggle={() => toggle(id)} onDelete={handleDelete} onToggleStatus={handleToggleStatus} />;
                   })
               }
             </div>
@@ -597,7 +639,7 @@ const JobsTable = ({ jobs = [] }) => {
                     ? <tr><td colSpan={8} style={{ padding: '48px 24px', textAlign: 'center', fontSize: 12, color: T.text3 }}>No jobs match <span style={{ color: T.text2 }}>"{search}"</span></td></tr>
                     : sorted.map((job, i) => {
                         const id = job._id ?? job.id ?? i;
-                        return <TableRow key={id} job={job} expanded={expanded === id} onToggle={() => toggle(id)} onDelete={handleDelete} />;
+                        return <TableRow key={id} job={job} expanded={expanded === id} onToggle={() => toggle(id)} onDelete={handleDelete} onToggleStatus={handleToggleStatus} />;
                       })
                   }
                 </tbody>

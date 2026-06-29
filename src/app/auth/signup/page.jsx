@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signUp } from '@/lib/auth-client';
 import { Briefcase, Person, Lock, Eye, EyeSlash, At, Camera } from '@gravity-ui/icons';
 import toast from 'react-hot-toast';
@@ -69,7 +69,7 @@ const roles = [
     { value: 'recruiter', label: 'Recruiter' },
 ];
 
-export default function SignUpPage() {
+function SignUpContent() {
     const [isVisible, setIsVisible] = useState(false);
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [agreed, setAgreed] = useState(false);
@@ -480,5 +480,17 @@ export default function SignUpPage() {
                 </motion.div>
             </div>
         </section>
+    );
+}
+
+export default function SignUpPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-black text-white/40 text-xs uppercase tracking-[0.2em]">
+                Loading...
+            </div>
+        }>
+            <SignUpContent />
+        </Suspense>
     );
 }

@@ -17,6 +17,9 @@ export const requireRole = async(role)=>{
     if(!user){
         redirect('/auth/signin')
     }
+    if(user?.status === 'suspended'){
+        redirect('/unauthorized?reason=suspended')
+    }
     if(user?.role !== role){
         redirect('/unauthorized')
     }

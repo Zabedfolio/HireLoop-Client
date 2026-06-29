@@ -26,7 +26,10 @@ export default async function Success({ searchParams }) {
 
     const subsInfo = {
         email: customerEmail,
-        planId: metadata.planId
+        planId: metadata.planId,
+        amount: amount_total ? amount_total / 100 : 0,
+        transactionId: session_id,
+        status: 'active'
     }
 
     // update the user plan info

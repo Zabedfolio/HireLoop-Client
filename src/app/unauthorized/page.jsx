@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import {
     ArrowLeft,
     House,
@@ -33,8 +35,10 @@ const reasons = [
     },
 ];
 
-export default function UnauthorizedPage({ requiredRole, currentRole }) {
+function UnauthorizedContent({ requiredRole, currentRole }) {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const isSuspended = searchParams.get('reason') === 'suspended';
 
     return (
         <section className="relative min-h-screen overflow-hidden bg-black">
@@ -75,14 +79,14 @@ export default function UnauthorizedPage({ requiredRole, currentRole }) {
                     </motion.div>
 
                     <p className="text-xs uppercase tracking-[0.25em] text-white/60 sm:text-sm">
-                        Access Restricted
+                        {isSuspended ? 'Account Suspended' : 'Access Restricted'}
                     </p>
                 </div>
 
                 {/* 403 */}
                 <div className="relative mt-10">
                     <h1 className="bg-gradient-to-b from-white to-white/20 bg-clip-text text-[7rem] font-semibold leading-none tracking-tight text-transparent sm:text-[9rem] md:text-[12rem] lg:text-[15rem]">
-                        403
+                        {isSuspended ? 'Suspended' : '403'}
                     </h1>
 
                     {/* Glow Ring */}
@@ -92,13 +96,14 @@ export default function UnauthorizedPage({ requiredRole, currentRole }) {
                 {/* Heading */}
                 <div className="mx-auto max-w-3xl">
                     <h2 className="text-3xl font-semibold text-white sm:text-5xl md:text-6xl">
-                        You don&rsquo;t have permission to be here.
+                        {isSuspended ? 'Your account has been suspended.' : 'You don\u2019t have permission to be here.'}
                     </h2>
 
                     <p className="mt-5 text-sm leading-7 text-white/60 sm:text-base sm:leading-8 md:text-xl">
-                        This page is restricted to certain account roles. If you believe
-                        this is a mistake, try signing in with a different account or
-                        reach out to your administrator.
+                        {isSuspended 
+                            ? 'Your account access has been restricted by an administrator. If you believe this is in error, please contact support.'
+                            : 'This page is restricted to certain account roles. If you believe this is a mistake, try signing in with a different account or reach out to your administrator.'
+                        }
                     </p>
                 </div>
 
@@ -185,5 +190,17 @@ export default function UnauthorizedPage({ requiredRole, currentRole }) {
                 </p>
             </div>
         </section>
+    );
+}
+
+export default function UnauthorizedPage(props) {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-black text-white/50 flex items-center justify-center text-xs uppercase tracking-[0.2em]">
+                Loading...
+            </div>
+        }>
+            <UnauthorizedContent {...props} />
+        </Suspense>
     );
 }

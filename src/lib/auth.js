@@ -20,6 +20,27 @@ export const auth = betterAuth({
       },
       plan:{
         defaultValue: "seeker_free",
+      },
+      headline:{
+        type: "string",
+        required: false,
+      },
+      bio:{
+        type: "string",
+        required: false,
+      },
+      skills:{
+        type: "string",
+        required: false,
+      },
+      resume:{
+        type: "string",
+        required: false,
+      },
+      status:{
+        type: "string",
+        required: false,
+        defaultValue: "active",
       }
     },
   },

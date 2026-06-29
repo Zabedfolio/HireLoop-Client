@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signIn } from '@/lib/auth-client';
 import { Briefcase, Lock, Eye, EyeSlash, At } from '@gravity-ui/icons';
 import toast from 'react-hot-toast';
@@ -60,7 +60,7 @@ const statCards = [
     { value: '25K+', label: 'Success Stories' },
 ];
 
-export default function SignInPage() {
+function SignInContent() {
     const [isVisible, setIsVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -349,5 +349,17 @@ export default function SignInPage() {
                 </motion.div>
             </div>
         </section>
+    );
+}
+
+export default function SignInPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-black text-white/40 text-xs uppercase tracking-[0.2em]">
+                Loading...
+            </div>
+        }>
+            <SignInContent />
+        </Suspense>
     );
 }
